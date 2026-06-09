@@ -3,6 +3,12 @@ const { errorResponse, successResponse } = require("../../helpers/responses");
 const Ban = require("./../../models/Ban");
 const bcrypt = require("bcrypt");
 const { sendSms } = require("../../services/otp");
+const {
+  sendOtpValidator,
+  otpVerifyValidator,
+} = require("./../../validators/auth");
+const User = require("./../../models/Users");
+const jwt = require("jsonwebtoken");
 
 //* Start Helper Functions
 
@@ -41,13 +47,12 @@ const generateOtp = async (phone, length = 4, expireTime = 1) => {
 exports.send = async (req, res, next) => {
   try {
     const { phone } = req.body;
-    console.log("phone");
-    return res.json("ok")
+
     const isBanned = await Ban.findOne({ phone });
     if (isBanned) {
       return errorResponse(res, 403, "This Phone Number has been banned ");
     }
-    //*Validation
+    await sendOtpValidator.validate({ phone }, { abortEarly: false });
     const { expired, remainingTime } = await getOtpDetails(phone);
     if (!expired) {
       return successResponse(res, 200, {
@@ -63,7 +68,32 @@ exports.send = async (req, res, next) => {
 };
 
 exports.verify = async (req, res, next) => {
-  //Code
+  try {
+    const { phone, otp, isSeller } = req.body;
+    await otpVerifyValidator.validate(req.body, { abortEarly: false });
+    const savedOtp = await redis.get(getOtpRedisPattern(phone));
+    const otpIsCorrect = await bcrypt.compare(otp, savedOtp);
+    if (!otpIsCorrect) {
+      return errorResponse(res, 400, "Wrong or Expired otp !!");
+    }
+    if (!otpIsCorrect) {
+      return errorResponse(res, 400, "Wrong or Expired otp !!");
+    }
+
+    const existingUser = await User.findOne({ phone });
+    if (existingUser) {
+      const token = jwt.sign(
+        { userId: existingUser._id },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "30d",
+        },
+      );
+      return successResponse(res, 201,{user:existingUser, token})
+    }
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.getMe = async (req, res, next) => {

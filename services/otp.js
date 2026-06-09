@@ -1,9 +1,6 @@
-
-require("dotenv")
-exports.sendSms = async(phone,opt)=>{
-    console.log("sendSMS");
-    
- try {
+require("dotenv");
+exports.sendSms = async (phone, opt) => {
+  try {
     request.post(
       {
         url: "http://ippanel.com/api/select",
@@ -38,7 +35,6 @@ exports.sendSms = async(phone,opt)=>{
       },
     );
   } catch (err) {
-    console.log("Error ->",err);
-    
+    console.log("Error ->", err);
   }
-}
+};
