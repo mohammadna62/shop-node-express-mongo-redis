@@ -1,7 +1,7 @@
 const errorResponse = (res, statusCode, message, data) => {
   return res
     .status(statusCode)
-    .json({ status: statusCode, success: flase, error: message, data });
+    .json({ status: statusCode, success: false, error: message, data });
 };
 
 const successResponse = (res, statusCode = 200, data) => {

@@ -47,12 +47,13 @@ const generateOtp = async (phone, length = 4, expireTime = 1) => {
 exports.send = async (req, res, next) => {
   try {
     const { phone } = req.body;
+    await sendOtpValidator.validate({ phone }, { abortEarly: false });
 
     const isBanned = await Ban.findOne({ phone });
     if (isBanned) {
       return errorResponse(res, 403, "This Phone Number has been banned ");
     }
-    await sendOtpValidator.validate({ phone }, { abortEarly: false });
+    
     const { expired, remainingTime } = await getOtpDetails(phone);
     if (!expired) {
       return successResponse(res, 200, {
@@ -89,8 +90,22 @@ exports.verify = async (req, res, next) => {
           expiresIn: "30d",
         },
       );
-      return successResponse(res, 201,{user:existingUser, token})
+      return successResponse(res, 201, { user: existingUser, token });
     }
+    const isFirstUser = (await User.countDocuments()) === 0; //* Checked for First User
+    const user = await User.create({
+      phone,
+      username: phone,
+      roles: isFirstUser ? ["ADMIN"] : isSeller ? ["USER", "SELLER"] : ["USER"],
+    });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
+    return successResponse(res, 201, {
+      message: "User register Successfully",
+      token,
+      user,
+    });
   } catch (err) {
     next(err);
   }
