@@ -13,7 +13,7 @@ app.use(setHeaders);
 app.use(express.static(path.join(__dirname, "public")));
 
 //* Routers
-app.use('/auth',authRouter)
+app.use('/api/auth',authRouter)
 
 app.use((req, res) => {
   console.log("This Path Is Not Found", req.path);
