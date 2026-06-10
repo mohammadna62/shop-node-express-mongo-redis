@@ -1,6 +1,10 @@
 require("dotenv");
-exports.sendSms = async (phone, opt) => {
+const request = require("request");
+const { errorResponse, successResponse } = require("./../helpers/responses");
+exports.sendSms = async (phone, otp,res) => {
   try {
+    
+    
     request.post(
       {
         url: "http://ippanel.com/api/select",
@@ -11,7 +15,7 @@ exports.sendSms = async (phone, opt) => {
           fromNum: process.env.SMS_FROM,
           toNum: phone,
           patternCode: process.env.VERIFY_PATTERN_CODE,
-          inputData: [{ "verification-code": opt }],
+          inputData: [{ "verification-code": otp }],
         },
         json: true,
       },
@@ -23,12 +27,11 @@ exports.sendSms = async (phone, opt) => {
             typeof response.body !== "number" &&
             Number(response.body[0]) !== 0
           ) {
-            return res.status(500).json({ message: response.body[1] });
+             return  response.body[1] ;
           }
-          await otpModel.create({ phone, code, expireAt });
-          return res
-            .status(201)
-            .json({ message: "OTP Code Send Successfully" });
+          //await otpModel.create({ phone, code, expireAt });
+          return "OTP Code Send Successfully"
+          // res.status(201).json({ message: "OTP Code Send Successfully" });
         } else {
           console.log("whatever you want");
         }

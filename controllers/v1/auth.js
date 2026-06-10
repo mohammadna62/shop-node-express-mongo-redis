@@ -36,10 +36,13 @@ const generateOtp = async (phone, length = 4, expireTime = 1) => {
   const digit = `0123456789`;
   let otp = "";
   for (let i = 0; i < length; i++) {
-    otp += digit[Math.random() * digit.length];
+    otp += digit[Math.floor(Math.random() * digit.length)];
   }
+ 
+  
   const hashedOtp = await bcrypt.hash(otp, 12);
   await redis.set(getOtpRedisPattern(phone), hashedOtp, "EX", expireTime * 60);
+
   return otp;
 };
 //* Finish Helper Functions
@@ -53,16 +56,20 @@ exports.send = async (req, res, next) => {
     if (isBanned) {
       return errorResponse(res, 403, "This Phone Number has been banned ");
     }
-    
+
     const { expired, remainingTime } = await getOtpDetails(phone);
     if (!expired) {
       return successResponse(res, 200, {
         message: `OTP Already Send Please Tray Again After ${remainingTime}`,
       });
     }
-    const otp = generateOtp(phone);
-    await sendSms(phone, otp);
-    return successResponse(res, 200, { message: "OTP Send Successfully" });
+    const otp = await generateOtp(phone);
+
+    const result = await sendSms(phone, otp, res);
+    return successResponse(res, 200, {
+      message: "OTP Send Successfully",
+      result,
+    });
   } catch (err) {
     next(err);
   }
