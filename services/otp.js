@@ -29,9 +29,9 @@ exports.sendSms = async (phone, otp,res) => {
           ) {
              return  response.body[1] ;
           }
-          //await otpModel.create({ phone, code, expireAt });
+          
           return "OTP Code Send Successfully"
-          // res.status(201).json({ message: "OTP Code Send Successfully" });
+          
         } else {
           console.log("whatever you want");
         }

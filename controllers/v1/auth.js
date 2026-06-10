@@ -119,5 +119,11 @@ exports.verify = async (req, res, next) => {
 };
 
 exports.getMe = async (req, res, next) => {
-  //Code
+    try {
+    const user = req.user;
+
+    return successResponse(res, 200, { user });
+  } catch (err) {
+    next(err);
+  }
 };

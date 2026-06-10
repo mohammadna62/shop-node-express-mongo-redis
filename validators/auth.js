@@ -4,15 +4,25 @@ const sendOtpValidator = yup.object({
   phone: yup
     .string()
     .required("Phone Number is Require!! ")
-    .matches(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,"Phone number is not valid"),
+    .matches(
+      /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
+      "Phone number is not valid",
+    ),
 });
 
 const otpVerifyValidator = yup.object({
-    phone: yup
+  phone: yup
     .string()
     .required("Phone Number is Require!! ")
-    .matches(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,"Phone number is not valid"),
-    otp : yup.string().required("OTP code is Required").matches(/^[0-9]+$/,"OTP code is not valid")
+    .matches(
+      /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
+      "Phone number is not valid",
+    ),
+  otp: yup
+    .string()
+    .required("OTP code is Required")
+    .matches(/^[0-9]+$/, "OTP code is not valid"),
+  isSeller: yup.boolean().required(),
 });
 
 module.exports = { sendOtpValidator, otpVerifyValidator };
