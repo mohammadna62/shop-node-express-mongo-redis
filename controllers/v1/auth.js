@@ -38,8 +38,7 @@ const generateOtp = async (phone, length = 4, expireTime = 1) => {
   for (let i = 0; i < length; i++) {
     otp += digit[Math.floor(Math.random() * digit.length)];
   }
- 
-  
+
   const hashedOtp = await bcrypt.hash(otp, 12);
   await redis.set(getOtpRedisPattern(phone), hashedOtp, "EX", expireTime * 60);
 
@@ -65,10 +64,10 @@ exports.send = async (req, res, next) => {
     }
     const otp = await generateOtp(phone);
 
-    const result = await sendSms(phone, otp, res);
+    const result = await sendSms(phone, otp);
+
     return successResponse(res, 200, {
-      message: "OTP Send Successfully",
-      result,
+      message: result,
     });
   } catch (err) {
     next(err);
@@ -78,14 +77,19 @@ exports.send = async (req, res, next) => {
 exports.verify = async (req, res, next) => {
   try {
     const { phone, otp, isSeller } = req.body;
+
     await otpVerifyValidator.validate(req.body, { abortEarly: false });
+
     const savedOtp = await redis.get(getOtpRedisPattern(phone));
-    const otpIsCorrect = await bcrypt.compare(otp, savedOtp);
-    if (!otpIsCorrect) {
-      return errorResponse(res, 400, "Wrong or Expired otp !!");
+
+    if (!savedOtp) {
+      return errorResponse(res, 400, "Wrong or expired OTP");
     }
+
+    const otpIsCorrect = await bcrypt.compare(otp, savedOtp);
+
     if (!otpIsCorrect) {
-      return errorResponse(res, 400, "Wrong or Expired otp !!");
+      return errorResponse(res, 400, "Wrong or expired OTP !!");
     }
 
     const existingUser = await User.findOne({ phone });
@@ -95,21 +99,27 @@ exports.verify = async (req, res, next) => {
         process.env.JWT_SECRET,
         {
           expiresIn: "30d",
-        },
+        }
       );
-      return successResponse(res, 201, { user: existingUser, token });
+
+      return successResponse(res, 200, { user: existingUser, token });
     }
-    const isFirstUser = (await User.countDocuments()) === 0; //* Checked for First User
+
+    //* Register
+    const isFirstUser = (await User.countDocuments()) === 0;//* Checked for First User
+
     const user = await User.create({
       phone,
       username: phone,
       roles: isFirstUser ? ["ADMIN"] : isSeller ? ["USER", "SELLER"] : ["USER"],
     });
+
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "30d",
     });
+
     return successResponse(res, 201, {
-      message: "User register Successfully",
+      message: "User registed successfully :))",
       token,
       user,
     });
@@ -119,7 +129,7 @@ exports.verify = async (req, res, next) => {
 };
 
 exports.getMe = async (req, res, next) => {
-    try {
+  try {
     const user = req.user;
 
     return successResponse(res, 200, { user });

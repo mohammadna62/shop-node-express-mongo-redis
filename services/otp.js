@@ -1,10 +1,8 @@
-require("dotenv");
+require("dotenv").config();
 const request = require("request");
-const { errorResponse, successResponse } = require("./../helpers/responses");
-exports.sendSms = async (phone, otp,res) => {
-  try {
-    
-    
+
+exports.sendSms = (phone, otp) => {
+  return new Promise((resolve, reject) => {
     request.post(
       {
         url: "http://ippanel.com/api/select",
@@ -19,25 +17,24 @@ exports.sendSms = async (phone, otp,res) => {
         },
         json: true,
       },
-      async function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-          //YOU‌ CAN‌ CHECK‌ THE‌ RESPONSE‌ AND SEE‌ ERROR‌ OR‌ SUCCESS‌ MESSAGE
-
-          if (
-            typeof response.body !== "number" &&
-            Number(response.body[0]) !== 0
-          ) {
-             return  response.body[1] ;
-          }
-          
-          return "OTP Code Send Successfully"
-          
-        } else {
-          console.log("whatever you want");
+      (error, response, body) => {
+        if (error) {
+          return reject(error);
         }
-      },
+
+        if (response.statusCode !== 200) {
+          return reject(body);
+        }
+
+        if (
+          typeof body !== "number" &&
+          Number(body?.[0]) !== 0
+        ) {
+          return resolve(body[1]);
+        }
+
+        return resolve("OTP Code Send Successfully");
+      }
     );
-  } catch (err) {
-    console.log("Error ->", err);
-  }
+  });
 };

@@ -1,7 +1,7 @@
 const { errorResponse } = require("../helpers/responses");
 const jwt = require("jsonwebtoken");
 const User = require("./../models/Users");
-const Ban = require("../models/Ban");
+
 
 exports.auth = async (req, res, next) => {
   try {
@@ -36,11 +36,7 @@ exports.auth = async (req, res, next) => {
       return errorResponse(res, 404, "User not found !!");
     }
 
-    const isBanned = await Ban.findOne({ phone: user.phone });
-
-    if (isBanned) {
-      return errorResponse(res, 403, "This user has been banned");
-    }
+    
 
     req.user = user;
 
