@@ -126,3 +126,16 @@ exports.updateAddress = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getAll = async (req, res, next) => {
+  try {
+    let { page = 1, limit = 10 } = req.query;
+
+    const users = await User.find({})
+      .skip((page - 1) * limit)
+      .limit(limit);
+      return successResponse(res, 200, {users})
+  } catch (err) {
+    next(err);
+  }
+};
