@@ -1,8 +1,11 @@
-const { response } = require("express");
 const { errorResponse, successResponse } = require("../../helpers/responses");
 const Ban = require("../../models/Ban");
 const User = require("../../models/Users");
 const cities = require("./../../cities/cities.json");
+const {
+  createAddressValidator,
+  updateAddressValidator,
+} = require("../../validators/address");
 
 exports.banUser = async (req, res, next) => {
   try {
@@ -36,8 +39,7 @@ exports.createAddress = async (req, res, next) => {
     const user = req.user;
     const { name, postalCode, location, address, cityId } = req.body;
 
-    //* Validation
-
+    await createAddressValidator.validate(req.body, { abortEarly: false });
     const city = cities.find((city) => +city.id === +cityId);
 
     if (!city) {
@@ -88,6 +90,37 @@ exports.deleteAddress = async (req, res, next) => {
     return successResponse(res, 200, {
       user: updatedUser,
       message: "Address deleted successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateAddress = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.user._id });
+    const { addressId } = req.params;
+    const { name, postalCode, location, address, cityId } = req.body;
+
+    await updateAddressValidator.validate(req.body, { abortEarly: false });
+
+    const userAddress = user.addresses.id(addressId);
+
+    if (!userAddress) {
+      return errorResponse(res, 404, "Address not found !!");
+    }
+
+    userAddress.name = name || userAddress.name;
+    userAddress.postalCode = postalCode || userAddress.postalCode;
+    userAddress.location = location || userAddress.location;
+    userAddress.cityId = cityId || userAddress.cityId;
+    userAddress.address = address || userAddress.address;
+
+    const updatedUser = await user.save();
+
+    return successResponse(res, 200, {
+      user: updatedUser,
+      message: "Address updated successfully :))",
     });
   } catch (err) {
     next(err);
