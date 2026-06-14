@@ -1,3 +1,4 @@
+const { response } = require("express");
 const { errorResponse, successResponse } = require("../../helpers/responses");
 const Ban = require("../../models/Ban");
 const User = require("../../models/Users");
@@ -66,6 +67,27 @@ exports.createAddress = async (req, res, next) => {
     return successResponse(res, 201, {
       user: updatedUser,
       message: "Address created successfully :))",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteAddress = async (req, res, next) => {
+  try {
+    const { addressId } = req.params;
+    const user = await User.findOne({ _id: req.user._id });
+
+    const address = user.addresses.id(addressId);
+    if (!address) {
+      return errorResponse(res, 404, "Address Not Found !!");
+    }
+    await user.addresses.pull(addressId);
+    const updatedUser = await user.save();
+
+    return successResponse(res, 200, {
+      user: updatedUser,
+      message: "Address deleted successfully",
     });
   } catch (err) {
     next(err);
