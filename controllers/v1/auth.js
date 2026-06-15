@@ -99,14 +99,14 @@ exports.verify = async (req, res, next) => {
         process.env.JWT_SECRET,
         {
           expiresIn: "30d",
-        }
+        },
       );
 
       return successResponse(res, 200, { user: existingUser, token });
     }
 
     //* Register
-    const isFirstUser = (await User.countDocuments()) === 0;//* Checked for First User
+    const isFirstUser = (await User.countDocuments()) === 0; //* Checked for First User
 
     const user = await User.create({
       phone,

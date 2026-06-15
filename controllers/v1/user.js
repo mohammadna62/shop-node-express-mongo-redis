@@ -6,6 +6,7 @@ const {
   createAddressValidator,
   updateAddressValidator,
 } = require("../../validators/address");
+const { createPaginationData } = require("../../utils");
 
 exports.banUser = async (req, res, next) => {
   try {
@@ -130,11 +131,17 @@ exports.updateAddress = async (req, res, next) => {
 exports.getAll = async (req, res, next) => {
   try {
     let { page = 1, limit = 10 } = req.query;
+    page = page < 1 ? 1 : page;
+    limit = limit < 1 ? 1 : limit;
 
     const users = await User.find({})
       .skip((page - 1) * limit)
       .limit(limit);
-      return successResponse(res, 200, {users})
+    const totalUsers = await User.countDocuments();
+    return successResponse(res, 200, {
+      users,
+      pagination: createPaginationData(page, limit, totalUsers,"Users"),
+    });
   } catch (err) {
     next(err);
   }
