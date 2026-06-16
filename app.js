@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const authRouter =require("./routes/v1/auth")
 const usersRouter =require("./routes/v1/user")
+const sellersRouter =require("./routes/v1/seller")
 const { setHeaders } = require("./middlewares/setHeaders");
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.static(path.join(__dirname, "public")));
 //* Routers
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/users',usersRouter)
+app.use('/api/v1/sellers',sellersRouter)
 
 app.use((req, res) => {
   console.log("This Path Is Not Found", req.path);
