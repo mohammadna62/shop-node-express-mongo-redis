@@ -78,7 +78,10 @@ exports.deleteSeller = async (req, res, next) => {
     await existingSeller.deleteOne();
     //TODO Delete Products
     //TODO Delete Products from user shopping cart
-    return successResponse(res, 200, { message: "Seller delete successfully" , seller:existingSeller});
+    return successResponse(res, 200, {
+      message: "Seller delete successfully",
+      seller: existingSeller,
+    });
   } catch (err) {
     next(err);
   }
@@ -86,6 +89,12 @@ exports.deleteSeller = async (req, res, next) => {
 
 exports.get = async (req, res, next) => {
   try {
+    const user = req.user;
+    const seller = await Seller.findOne({ user: user._id });
+    if (!seller) {
+      return errorResponse(res, 404, "Seller Not Found");
+    }
+    return successResponse(res, 200, { seller });
   } catch (err) {
     next(err);
   }
