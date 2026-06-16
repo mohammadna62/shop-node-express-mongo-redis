@@ -5,6 +5,7 @@ const {
 } = require("../../validators/seller");
 const { errorResponse, successResponse } = require("../../helpers/responses");
 const cities = require("./../../cities/cities.json");
+const seller = require("./../../models/Seller");
 
 createSellerValidator;
 exports.create = async (req, res, next) => {
@@ -58,7 +59,10 @@ exports.update = async (req, res, next) => {
       },
       { new: true },
     );
-    return successResponse(res , 200, {message:"Seller Updated Successfully",seller })
+    return successResponse(res, 200, {
+      message: "Seller Updated Successfully",
+      seller,
+    });
   } catch (err) {
     next(err);
   }
@@ -66,6 +70,15 @@ exports.update = async (req, res, next) => {
 
 exports.deleteSeller = async (req, res, next) => {
   try {
+    const user = req.user;
+    const existingSeller = await Seller.findOne({ user: user._id });
+    if (!existingSeller) {
+      return errorResponse(res, 404, "Seller Not Found");
+    }
+    await existingSeller.deleteOne();
+    //TODO Delete Products
+    //TODO Delete Products from user shopping cart
+    return successResponse(res, 200, { message: "Seller delete successfully" , seller:existingSeller});
   } catch (err) {
     next(err);
   }
