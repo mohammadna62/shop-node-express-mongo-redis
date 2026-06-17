@@ -4,6 +4,7 @@ const authRouter =require("./routes/v1/auth")
 const usersRouter =require("./routes/v1/user")
 const sellersRouter =require("./routes/v1/seller")
 const locationsRouter =require("./routes/v1/location.js")
+const categoriesRouter =require("./routes/v1/category.js")
 const { setHeaders } = require("./middlewares/setHeaders");
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.static(path.join(__dirname, "public")));
 //* Routers
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/locations',locationsRouter)
+app.use('/api/v1/categories',categoriesRouter)
 app.use('/api/v1/users',usersRouter)
 app.use('/api/v1/sellers',sellersRouter)
 
