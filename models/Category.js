@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
 const categorySchema = new mongoose.Schema({
   title: {
@@ -6,33 +6,31 @@ const categorySchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+
   slug: {
     type: String,
     required: true,
+    trim: true,
     unique: true,
   },
+
   parent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
   },
+
   description: {
     type: String,
     trim: true,
   },
+
   icon: {
     type: {
-      filename: {
-        type: String,
-        require: true,
-        trim: true,
-      },
-      path: {
-        type: String,
-        require: true,
-        trim: true,
-      },
+      filename: { type: String, required: true, trim: true },
+      path: { type: String, required: true, trim: true },
     },
   },
+
   filters: {
     type: [
       {
@@ -41,30 +39,35 @@ const categorySchema = new mongoose.Schema({
           required: true,
           trim: true,
         },
+
         slug: {
           type: String,
           required: true,
           trim: true,
           unique: true,
         },
+
         description: {
           type: String,
           trim: true,
         },
+
         type: {
           type: String,
           enum: ["radio", "selectbox"],
           required: true,
         },
-        Options: {
+
+        options: {
           type: [String],
-          default:undefined,
+          default: undefined,
           validate: {
             validator: (options) => Array.isArray(options),
           },
         },
-        min:{type:Number},
-        max:{type:Number},
+
+        min: { type: Number },
+        max: { type: Number },
       },
     ],
   },
