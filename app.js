@@ -3,8 +3,8 @@ const express = require("express");
 const authRouter =require("./routes/v1/auth")
 const usersRouter =require("./routes/v1/user")
 const sellersRouter =require("./routes/v1/seller")
-const locationsRouter =require("./routes/v1/location.js")
-const categoriesRouter =require("./routes/v1/category.js")
+const locationsRouter =require("./routes/v1/location")
+const categoriesRouter =require("./routes/v1/category")
 const { setHeaders } = require("./middlewares/setHeaders");
 
 const app = express();
