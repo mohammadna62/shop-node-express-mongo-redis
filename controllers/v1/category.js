@@ -1,5 +1,8 @@
 const { errorResponse, successResponse } = require("../../helpers/responses");
-const { categoryValidator } = require("./../../validators/category");
+const {
+  categoryValidator,
+  categoryEditValidator,
+} = require("./../../validators/category");
 const Category = require("./../../models/Category");
 const { isValidObjectId } = require("mongoose");
 
@@ -80,6 +83,55 @@ exports.deleteCategory = async (req, res, next) => {
 
 exports.editCategory = async (req, res, next) => {
   try {
+    const { categoryId } = req.params;
+
+    let { title, slug, parent, description, filters } = req.body;
+    filters = JSON.parse(filters);
+
+    if (!isValidObjectId(categoryId)) {
+      return errorResponse(res, 401, "Category ID is Not Valid !!");
+    }
+
+    await categoryEditValidator.validate(
+      {
+        title,
+        slug,
+        parent,
+        description,
+        filters,
+      },
+      { abortEarly: false },
+    );
+
+    let icon = null;
+    if (req.file) {
+      const { filename, mimetype } = req.file;
+
+      if (!supportedFormat.includes(mimetype)) {
+        return errorResponse(res, 400, "Unsupported image format !!");
+      }
+
+      icon = {
+        filename,
+        path: `images/category-icons/${filename}`,
+      };
+    }
+    const updatedCategory = await Category.findByIdAndUpdate(
+      categoryId,
+      {
+        title,
+        slug,
+        parent,
+        description,
+        filters,
+        icon,
+      },
+      { new: true },
+    );
+    if (!updatedCategory) {
+      return errorResponse(res, 404, "Category Not Found !!");
+    }
+    return successResponse(res, 200, { category: updatedCategory });
   } catch (err) {
     next(err);
   }
