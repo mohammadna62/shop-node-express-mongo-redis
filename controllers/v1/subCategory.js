@@ -8,8 +8,6 @@ exports.createSubCategory = async (req, res, next) => {
   try {
     let { title, slug, parent, description, filters } = req.body;
 
-    filters = JSON.parse(filters);
-
     await subCategoryValidator.validate(
       {
         title,
@@ -18,7 +16,7 @@ exports.createSubCategory = async (req, res, next) => {
         description,
         filters,
       },
-      { abortEarly: false }
+      { abortEarly: false },
     );
 
     const parentCheck = await ParentCategory.findById(parent);
@@ -69,6 +67,24 @@ exports.getSubCategory = async (req, res, next) => {
     }
 
     return successResponse(res, 200, { category });
+  } catch (err) {
+    next(err);
+  }
+};
+exports.deleteSubCategory = async (req, res, next) => {
+  try {
+    const { categoryId } = req.params;
+    if (!isValidObjectId(categoryId)) {
+      return errorResponse(res, 400, "Wrong Category ID !!");
+    }
+    const deletedSubCategory = await SubCategory.findByIdAndDelete(categoryId);
+    if (!deletedSubCategory) {
+      return errorResponse(res, 404, "Sub Category Not Found!!");
+    }
+    return successResponse(res, 200, {
+      message: "Sub Category Deleted Successfully",
+      category: deletedSubCategory,
+    });
   } catch (err) {
     next(err);
   }
