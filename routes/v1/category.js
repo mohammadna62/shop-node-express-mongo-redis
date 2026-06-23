@@ -6,13 +6,14 @@ const {
   createCategory,
   editCategory,
   deleteCategory,
+  fetchAllCategories
 } = require("../../controllers/v1/category");
 const {
   createSubCategory,
   getAllSubCategories,
   getSubCategory,
   deleteSubCategory,
-  editSubCategory
+  editSubCategory,
 } = require("../../controllers/v1/subCategory");
 
 const upload = multerStorage("public/images/category-icons");
@@ -21,6 +22,7 @@ router = express.Router();
 
 router
   .route("/")
+  .get(fetchAllCategories)
   .post(auth, roleGuard("ADMIN"), upload.single("icon"), createCategory);
 router
   .route("/:categoryId")

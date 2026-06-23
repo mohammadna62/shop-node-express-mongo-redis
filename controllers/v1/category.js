@@ -5,6 +5,7 @@ const {
 } = require("./../../validators/category");
 const Category = require("./../../models/Category");
 const { isValidObjectId } = require("mongoose");
+const SubCategory = require("../../models/SubCategory");
 
 const supportedFormat = [
   "image/jpeg",
@@ -15,6 +16,30 @@ const supportedFormat = [
   "image/svg+xml",
 ];
 
+exports.fetchAllCategories = async (req, res, next) => {
+  try {
+    const fetchSubCategoriesRecursively = async (parentId = null) => {
+      const subCategories = await SubCategory.find({ parent: parentId });
+      const parentSubCategories = await Category.find({
+        parent: parentId,
+      }).lean();
+
+      const fetchParentSubCategories = [];
+
+      for (const category of parentSubCategories) {
+        category.subCategories = await fetchSubCategoriesRecursively(
+          category._id,
+        );
+        fetchParentSubCategories.push(category);
+      }
+      return [...fetchParentSubCategories, ...subCategories];
+    };
+    const categories = await fetchSubCategoriesRecursively(null);
+    return successResponse(res, 200, { categories });
+  } catch (err) {
+    next(err);
+  }
+};
 exports.createCategory = async (req, res, next) => {
   try {
     let { title, slug, parent, description, filters } = req.body;
