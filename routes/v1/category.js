@@ -11,7 +11,8 @@ const {
   createSubCategory,
   getAllSubCategories,
   getSubCategory,
-  deleteSubCategory
+  deleteSubCategory,
+  editSubCategory
 } = require("../../controllers/v1/subCategory");
 
 const upload = multerStorage("public/images/category-icons");
@@ -30,6 +31,10 @@ router
   .post(auth, roleGuard("ADMIN"), createSubCategory)
   .get(getAllSubCategories);
 
-router.route("/sub/:categoryId").get(getSubCategory).delete(auth, roleGuard("ADMIN"),deleteSubCategory);
+router
+  .route("/sub/:categoryId")
+  .get(getSubCategory)
+  .delete(auth, roleGuard("ADMIN"), deleteSubCategory)
+  .put(auth, roleGuard("ADMIN"), upload.single("icon"), editSubCategory);
 
 module.exports = router;

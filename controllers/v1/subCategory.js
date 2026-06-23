@@ -3,6 +3,7 @@ const { errorResponse, successResponse } = require("../../helpers/responses");
 const ParentCategory = require("../../models/Category");
 const SubCategory = require("../../models/SubCategory");
 const { subCategoryValidator } = require("../../validators/category");
+const { updateMany } = require("../../models/Users");
 
 exports.createSubCategory = async (req, res, next) => {
   try {
@@ -87,5 +88,41 @@ exports.deleteSubCategory = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+exports.editSubCategory = async (req, res, next) => {
+  try {
+    const { categoryId } = req.params;
+    let { title, slug, parent, description, filters } = req.body;
+
+    await subCategoryValidator(
+      { title, slug, parent, description, filters },
+      { abortEarly: false },
+    );
+    if (!isValidObjectId(categoryId)) {
+      return errorResponse(res, 400, "Category ID is Not Correct !!");
+    }
+
+    const parentCheck = await ParentCategory.findById(parent);
+    if (!parentCheck) {
+      return errorResponse(res, 400, "Parent ID is not correct !!");
+    }
+    const UpdatedCategory = await SubCategory.findOneAndUpdate(categoryId, {
+      title,
+      slug,
+      parent,
+      description,
+      filters,
+    });
+    if (!UpdatedCategory) {
+      return errorResponse(res, 404, "Subcategory Not Found !!");
+    }
+    return successResponse(res, 200, {
+      category: UpdatedCategory,
+      message: "Category Updated Successfully",
+    });
+  } catch (err) {
+    next();
   }
 };
