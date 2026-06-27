@@ -5,6 +5,7 @@ const usersRouter =require("./routes/v1/user")
 const sellersRouter =require("./routes/v1/seller")
 const locationsRouter =require("./routes/v1/location")
 const categoriesRouter =require("./routes/v1/category")
+const productsRouter =require("./routes/v1/product")
 const { setHeaders } = require("./middlewares/setHeaders");
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/v1/locations',locationsRouter)
 app.use('/api/v1/categories',categoriesRouter)
 app.use('/api/v1/users',usersRouter)
 app.use('/api/v1/sellers',sellersRouter)
+app.use('/api/v1/products',productsRouter)
 
 app.use((req, res) => {
   console.log("This Path Is Not Found", req.path);
