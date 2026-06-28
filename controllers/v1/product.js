@@ -51,6 +51,7 @@ exports.create = async (req, res, next) => {
       }
     );
 
+    
     let images = [];
     for (let i = 0; i < req.files.length; i++) {
       const file = req.files[i];
@@ -96,3 +97,20 @@ exports.create = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.deleteProduct = async(req , res , next)=>{
+  try {
+    const {id} = req.params
+    if(!isValidObjectId(id)){
+      return errorResponse(res , 400 , "Product ID is Not Correct")
+    }
+    const deletedProduct = await Product.findByIdAndDelete(id)
+    if(!deletedProduct){
+      return errorResponse(res , 404 , "Product Not Found")
+    }
+  return successResponse(res , 200 , {message:"Product remove Successfully", product:deletedProduct})
+  } catch (err) {
+    next(err)
+    
+  }
+}
