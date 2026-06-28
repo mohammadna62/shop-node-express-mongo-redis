@@ -17,51 +17,79 @@ const supportedFormat = [
 ];
 
 exports.create = async (req, res, next) => {
-  try {
-    const {
+ try {
+    let {
       name,
       slug,
       description,
       subCategory,
-      seller,
+      sellers,
       filterValues,
       customFilters,
     } = req.body;
-    seller = JSON.parse(seller);
+
+    if (sellers) sellers = JSON.parse(sellers);
     filterValues = JSON.parse(filterValues);
     customFilters = JSON.parse(customFilters);
 
     if (!isValidObjectId(subCategory)) {
-      return errorResponse(res, 400, "SubCategory ID is Not Correct !!");
+      return errorResponse(res, 400, "SubCategory ID is not correct !!");
     }
-    //TODO -> validator
+
+    const validatedData = await createProductValidator.validate(
+      {
+        name,
+        slug,
+        description,
+        subCategory,
+        sellers,
+        filterValues,
+        customFilters,
+      },
+      {
+        abortEarly: false,
+      }
+    );
+
     let images = [];
     for (let i = 0; i < req.files.length; i++) {
       const file = req.files[i];
       if (!supportedFormat.includes(file.mimetype)) {
-        return errorResponse(res, 400, "Unsupported image format !!");
+        return errorResponse(res, 400, "UnSupported image format !!");
       }
+
       images.push(file.filename);
     }
+
     let shortIdentifier = "";
-    while (!identifier) {
-      identifier = nanoid(6);
-      const product = await Product.findOne({ shortIdentifier });
+    while (!shortIdentifier) {
+      shortIdentifier = nanoid(6);
+
+      const product = await Product.findOne({
+        shortIdentifier,
+      });
+
       if (product) shortIdentifier = "";
     }
+
     const newProduct = await Product.create({
-      name,
-      slug,
-      description,
-      subCategory,
+      name: validatedData.name,
+      slug: validatedData.slug,
+      description: validatedData.description,
+      subCategory: validatedData.subCategory,
       images,
-      seller,
-      filterValues,
-      customFilters,
+      sellers: validatedData.sellers.map((seller) => ({
+        seller: seller.id,
+        price: seller.price,
+        stock: seller.stock,
+      })),
+      filterValues: validatedData.filterValues || {},
+      customFilters: validatedData.customFilters || {},
       shortIdentifier,
     });
+
     return successResponse(res, 201, {
-      message: "Product Created Successfully",
+      message: "Product created successfully :))",
       product: newProduct,
     });
   } catch (err) {

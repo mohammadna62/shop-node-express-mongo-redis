@@ -6,10 +6,12 @@ const sellerSchema = new mongoose.Schema({
     ref: "Seller",
     required: true,
   },
+
   price: {
     type: Number,
     required: true,
   },
+
   stock: {
     type: Number,
     required: true,
@@ -23,22 +25,26 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     slug: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
+      unique: true,
     },
+
     description: {
       type: String,
       required: true,
       trim: true,
     },
+
     subCategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategory",
       required: true,
     },
+
     images: {
       type: [
         {
@@ -47,27 +53,32 @@ const productSchema = new mongoose.Schema(
         },
       ],
     },
-    seller: {
+
+    sellers: {
       type: [sellerSchema],
     },
+
     filterValues: {
-      type: Map,
-      of: mongoose.Types.Mixed, //* for any Type of filters (selectBox , inputs)
+      type: Map, //* for any Type of filters (selectBox , inputs)
+      of: mongoose.Types.Mixed,
       required: true,
     },
+
     customFilters: {
       type: Map,
       of: String,
       required: true,
     },
+
     shortIdentifier: {
       type: String,
-      of: String,
       required: true,
       unique: true,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  }
 );
 
 const Product = mongoose.model("Product", productSchema);
