@@ -103,7 +103,9 @@ exports.getOneProduct = async (req, res, next) => {
     if (!isValidObjectId(id)) {
       return errorResponse(res, 400, "Product ID is not Correct");
     }
-    const product = await Product.findById(id);
+    const product = await Product.findById(id)
+      .populate("subCategory")
+      .populate("sellers.seller");
     if (!product) {
       return errorResponse(res, 404, "Product Not Found");
     }
