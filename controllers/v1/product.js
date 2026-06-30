@@ -2,6 +2,7 @@ const {
   createProductValidator,
   updateProductValidator,
 } = require("./../../validators/product");
+const fs = require("fs");
 const Product = require("./../../models/Product");
 const { errorResponse, successResponse } = require("../../helpers/responses");
 const { nanoid } = require("nanoid");
@@ -17,7 +18,7 @@ const supportedFormat = [
 ];
 
 exports.create = async (req, res, next) => {
- try {
+  try {
     let {
       name,
       slug,
@@ -48,10 +49,9 @@ exports.create = async (req, res, next) => {
       },
       {
         abortEarly: false,
-      }
+      },
     );
 
-    
     let images = [];
     for (let i = 0; i < req.files.length; i++) {
       const file = req.files[i];
@@ -98,19 +98,30 @@ exports.create = async (req, res, next) => {
   }
 };
 
-exports.deleteProduct = async(req , res , next)=>{
+exports.deleteProduct = async (req, res, next) => {
   try {
-    const {id} = req.params
-    if(!isValidObjectId(id)){
-      return errorResponse(res , 400 , "Product ID is Not Correct")
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Product ID is Not Correct");
     }
-    const deletedProduct = await Product.findByIdAndDelete(id)
-    if(!deletedProduct){
-      return errorResponse(res , 404 , "Product Not Found")
+
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    deletedProduct?.images?.map((image) =>
+       fs.unlink(`public/images/products/${image}`,
+      (err) => next(err))
+    );
+
+    if (!deletedProduct) {
+      return errorResponse(res, 404, "Product Not Found");
     }
-  return successResponse(res , 200 , {message:"Product remove Successfully", product:deletedProduct})
+
+    return successResponse(res, 200, {
+      message: "Product remove Successfully",
+      product: deletedProduct,
+    });
   } catch (err) {
-    next(err)
-    
+    next(err);
   }
-}
+};
