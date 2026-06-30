@@ -97,6 +97,21 @@ exports.create = async (req, res, next) => {
     next(err);
   }
 };
+exports.getOneProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Product ID is not Correct");
+    }
+    const product = await Product.findById(id);
+    if (!product) {
+      return errorResponse(res, 404, "Product Not Found");
+    }
+    return successResponse(res, 200, { product });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.deleteProduct = async (req, res, next) => {
   try {
@@ -109,8 +124,7 @@ exports.deleteProduct = async (req, res, next) => {
     const deletedProduct = await Product.findByIdAndDelete(id);
 
     deletedProduct?.images?.map((image) =>
-       fs.unlink(`public/images/products/${image}`,
-      (err) => next(err))
+      fs.unlink(`public/images/products/${image}`, (err) => next(err)),
     );
 
     if (!deletedProduct) {
