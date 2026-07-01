@@ -2,6 +2,7 @@ const {
   createProductValidator,
   updateProductValidator,
 } = require("./../../validators/product");
+const Note = require("./../../models/Note");
 const fs = require("fs");
 const Product = require("./../../models/Product");
 const { errorResponse, successResponse } = require("../../helpers/responses");
@@ -132,7 +133,7 @@ exports.deleteProduct = async (req, res, next) => {
     if (!deletedProduct) {
       return errorResponse(res, 404, "Product Not Found");
     }
-
+    //await Note.deleteMany({ product: id });
     return successResponse(res, 200, {
       message: "Product remove Successfully",
       product: deletedProduct,
