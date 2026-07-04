@@ -1,6 +1,7 @@
 const express = require("express");
 const { auth } = require("./../../middlewares/auth");
 const {
+  getNotes,
   addNote,
   getNote,
   editNote,
@@ -8,7 +9,9 @@ const {
 } = require("./../../controllers/v1/note");
 const router = express.Router();
 
-router.route("/").post(auth, addNote);
+router.route("/")
+.get(auth, getNotes)
+.post(auth, addNote)
 
 router
   .route("/:noteId")

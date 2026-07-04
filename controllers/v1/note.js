@@ -3,6 +3,46 @@ const { errorResponse, successResponse } = require("../../helpers/responses");
 const { createNoteValidator } = require("../../validators/note");
 const Note = require("./../../models/Note");
 const Product = require("./../../models/Product");
+const { createPaginationData } = require("../../utils/index");
+
+exports.getNotes = async (req, res, next) => {
+  try {
+    user = req.user;
+    const { page = 1, limit = 10 } = req.query;
+    const notes = await Note.find({ user: user._id })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate({
+        path: "product",
+      })
+      .lean();
+    let notedProducts = [];
+    for (const note of notes) {
+      if (note.product) {
+        const product = {
+          ...note.product,
+          note: note._id,
+          content: note.content,
+          createdAt: note.createdAt,
+        };
+        notedProducts.push(product);
+      } else {
+        await Note.findOneAndDelete({ _id: note._id });
+      }
+    }
+    if (!notes) {
+      return errorResponse(res, 404, "There is not any Note exist !!");
+    }
+    const userTotalNote = await Note.countDocuments({ user: user._id });
+    return successResponse(res, 200, {
+      products: notedProducts,
+      pagination: createPaginationData(page, limit, userTotalNote, "Notes"),
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.addNote = async (req, res, next) => {
   try {
@@ -49,7 +89,10 @@ exports.getNote = async (req, res, next) => {
     if (!isValidObjectId(noteId)) {
       return errorResponse(res, 400, "Invalid Note Id");
     }
-    const note = await Note.findById(noteId).populate("user").populate("product").lean()
+    const note = await Note.findById(noteId)
+      .populate("user")
+      .populate("product")
+      .lean();
     if (note?.user?._id.toString() !== user._id.toString()) {
       return errorResponse(
         res,
@@ -62,13 +105,14 @@ exports.getNote = async (req, res, next) => {
       return errorResponse(res, 404, "This Product has been removed !!");
     }
     const product = {
-        ...note.product,
-        note:{
-            _id : note._id,
-            content :note.content,
-        }
-    }
-    return successResponse(res , 200 , {product})
+      ...note.product,
+      note: {
+        _id: note._id,
+        content: note.content,
+        createdAt: note.createdAt,
+      },
+    };
+    return successResponse(res, 200, { product });
   } catch (err) {
     next(err);
   }
