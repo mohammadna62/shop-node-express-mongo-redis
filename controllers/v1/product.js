@@ -115,6 +115,74 @@ exports.getOneProduct = async (req, res, next) => {
     next(err);
   }
 };
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+    let { name, slug, description, subCategory, filterValues, customFilters } =
+      req.body;
+
+    if (filterValues) {
+      filterValues = JSON.parse(filterValues);
+    }
+    if (customFilters) {
+      customFilters = JSON.parse(customFilters);
+    }
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, " Product ID Is Not Valid !!");
+    }
+
+    const validatedUpdateData = await updateProductValidator.validate(
+      {
+        name,
+        slug,
+        description,
+        subCategory,
+        filterValues,
+        customFilters,
+      },
+      { abortEarly: false },
+    );
+
+    let images = [];
+
+    if (req.files) {
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        if (!supportedFormat.includes(file.mimetype)) {
+          return errorResponse(res, 400, "UnSupported image format !!");
+        }
+
+        images.push(file.filename);
+      }
+    }
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        name,
+        slug,
+        description,
+        subCategory,
+        filterValues,
+        customFilters,
+        images: images.length ? images : null,
+      },
+      { new: true },
+    );
+
+    if (!updatedProduct) {
+      return errorResponse(res, 404, "Product Not Found !!");
+    }
+
+    return successResponse(res, 200, {
+      product: updatedProduct,
+      message: "Product Updated Successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.deleteProduct = async (req, res, next) => {
   try {

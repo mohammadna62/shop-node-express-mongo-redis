@@ -1,7 +1,12 @@
 const express = require("express");
 const { auth } = require("./../../middlewares/auth");
 const roleGuard = require("../../middlewares/roleGuard");
-const { create, deleteProduct ,getOneProduct } = require("../../controllers/v1/product");
+const {
+  create,
+  getOneProduct,
+  updateProduct,
+  deleteProduct,
+} = require("../../controllers/v1/product");
 const { multerStorage } = require("./../../utils/multerConfigs");
 
 const upload = multerStorage("public/images/products");
@@ -14,6 +19,7 @@ router
 router
   .route("/:id")
   .get(getOneProduct)
+  .path(auth, roleGuard("ADMIN"), upload.array("images",10),updateProduct)
   .delete(auth, roleGuard("ADMIN"), deleteProduct);
 
 module.exports = router;

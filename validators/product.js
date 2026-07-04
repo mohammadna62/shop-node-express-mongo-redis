@@ -24,7 +24,7 @@ const createProductValidator = yup.object().shape({
     .test(
       "is-valid-objectid",
       "SubCategory ID must be a valid ObjectId",
-      isValidObjectId
+      isValidObjectId,
     ),
 
   sellers: yup
@@ -37,7 +37,7 @@ const createProductValidator = yup.object().shape({
           .test(
             "is-valid-objectid",
             "Seller ID must be a valid ObjectId",
-            isValidObjectId
+            isValidObjectId,
           ),
         price: yup
           .number()
@@ -47,7 +47,7 @@ const createProductValidator = yup.object().shape({
           .number()
           .required("Stock is required")
           .min(0, "Stock must be a non-negative number"),
-      })
+      }),
     )
     .required("At least one seller is required")
     .min(1, "At least one seller is required"),
@@ -57,7 +57,7 @@ const createProductValidator = yup.object().shape({
     .test(
       "customFieldsCheck",
       "customFields must be an object with key-value pairs",
-      (value) => value === undefined || typeof value === "object"
+      (value) => value === undefined || typeof value === "object",
     ),
 
   filterValues: yup
@@ -65,7 +65,7 @@ const createProductValidator = yup.object().shape({
     .test(
       "filterValuesCheck",
       "filterValues must be an object with key-value pairs",
-      (value) => value === undefined || typeof value === "object"
+      (value) => value === undefined || typeof value === "object",
     ),
 });
 
@@ -88,39 +88,16 @@ const updateProductValidator = yup.object().shape({
     .test(
       "is-valid-objectid",
       "SubCategory ID must be a valid ObjectId",
-      (value) => value === null || value === undefined || isValidObjectId(value)
+      (value) =>
+        value === null || value === undefined || isValidObjectId(value),
     ),
-
-  sellers: yup
-    .array()
-    .of(
-      yup.object().shape({
-        id: yup
-          .string()
-          .required("Seller ID is required")
-          .test(
-            "is-valid-objectid",
-            "Seller ID must be a valid ObjectId",
-            isValidObjectId
-          ),
-        price: yup
-          .number()
-          .required("Price is required")
-          .positive("Price must be a positive number"),
-        stock: yup
-          .number()
-          .required("Stock is required")
-          .min(0, "Stock must be a non-negative number"),
-      })
-    )
-    .min(1, "At least one seller is required"),
 
   customFields: yup
     .object()
     .test(
       "customFieldsCheck",
       "customFields must be an object with key-value pairs",
-      (value) => value === undefined || typeof value === "object"
+      (value) => value === undefined || typeof value === "object",
     ),
 
   filterValues: yup
@@ -128,7 +105,7 @@ const updateProductValidator = yup.object().shape({
     .test(
       "filterValuesCheck",
       "filterValues must be an object with key-value pairs",
-      (value) => value === undefined || typeof value === "object"
+      (value) => value === undefined || typeof value === "object",
     ),
 });
 
