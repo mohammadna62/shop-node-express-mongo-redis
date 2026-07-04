@@ -128,7 +128,24 @@ exports.editNote = async (req, res, next) => {
 
 exports.removeNote = async (req, res, next) => {
   try {
-    //*Todo
+    const user = req.user;
+    const { noteId } = req.params;
+
+    if (!isValidObjectId(noteId)) {
+      return errorResponse(res, 400, "Note ID is not Valid !!");
+    }
+
+    const existingNote = await Note.findById(noteId);
+    if (!existingNote || existingNote.user.toString() !== user._id.toString()) {
+      return errorResponse(
+        res,
+        404,
+        "Note Not Found or You have nt access to it !!",
+      );
+    }
+
+    const deletedNote = await Note.findByIdAndDelete(noteId);
+    return successResponse(res, 200, { message: " Note removed successfully" , note :deletedNote});
   } catch (err) {
     next(err);
   }
