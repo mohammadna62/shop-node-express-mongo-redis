@@ -1,6 +1,9 @@
 const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../../helpers/responses");
-const { createNoteValidator } = require("../../validators/note");
+const {
+  createNoteValidator,
+  editNoteValidator,
+} = require("../../validators/note");
 const Note = require("./../../models/Note");
 const Product = require("./../../models/Product");
 const { createPaginationData } = require("../../utils/index");
@@ -120,7 +123,40 @@ exports.getNote = async (req, res, next) => {
 
 exports.editNote = async (req, res, next) => {
   try {
-    //*Todo
+    const user = req.user;
+    const { noteId } = req.params;
+    const { content } = req.body;
+
+    const editValidatedData = await editNoteValidator.validate(
+      { content },
+      { abortEarly: false },
+    );
+
+    if (!isValidObjectId(noteId)) {
+      return errorResponse(res, 400, "Note ID not Valid !!");
+    }
+    const existingNote = await Note.findById(noteId);
+
+    if (existingNote?.user._id.toString() !== user._id.toString()) {
+      return errorResponse(
+        res,
+        404,
+        "Note Not Found or You do not have access!!",
+      );
+    }
+
+    const updatedNote = await Note.findByIdAndUpdate(
+      noteId,
+      {
+        content: editValidatedData.content,
+      },
+      { new: true },
+    );
+
+    return successResponse(res, 200, {
+      note: updatedNote,
+      message: "Note Updated Successfully",
+    });
   } catch (err) {
     next(err);
   }
@@ -145,7 +181,10 @@ exports.removeNote = async (req, res, next) => {
     }
 
     const deletedNote = await Note.findByIdAndDelete(noteId);
-    return successResponse(res, 200, { message: " Note removed successfully" , note :deletedNote});
+    return successResponse(res, 200, {
+      message: " Note removed successfully",
+      note: deletedNote,
+    });
   } catch (err) {
     next(err);
   }
