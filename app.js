@@ -7,6 +7,7 @@ const locationsRouter =require("./routes/v1/location")
 const categoriesRouter =require("./routes/v1/category")
 const productsRouter =require("./routes/v1/product")
 const notesRouter =require("./routes/v1/note")
+const {redirectProduct} = require("./controllers/v1/shortLink")
 const { setHeaders } = require("./middlewares/setHeaders");
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/v1/users',usersRouter)
 app.use('/api/v1/sellers',sellersRouter)
 app.use('/api/v1/products',productsRouter)
 app.use('/api/v1/notes',notesRouter)
+app.get('/p/:shortIdentifier',redirectProduct)
 
 app.use((req, res) => {
   console.log("This Path Is Not Found", req.path);
