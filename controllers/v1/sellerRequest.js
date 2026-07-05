@@ -7,9 +7,40 @@ const {
 } = require("./../../validators/sellerRequest");
 const Product = require("./../../models/Product");
 const { isValidObjectId } = require("mongoose");
+const { createPaginationData } = require("../../utils/index");
 
 exports.getAllSellerRequests = async (req, res, next) => {
   try {
+    const user = req.user;
+    const { status = "pending", page = 1, limit = 10 } = req.query;
+
+    const seller = await Seller.findOne({ user: user._id });
+
+    if (!seller) {
+      return errorResponse(res, 404, "You are not a Seller !!");
+    }
+
+    const filter = {
+      seller: seller._id,
+      status,
+    };
+    const sellerRequests = await SellerRequest.find(filter)
+      .sort({
+        createdAt: "desc",
+      })
+      .skip((page - 1) * limit)
+      .limit(limit).lean();
+
+    const sellerRequestTotalCount = await SellerRequest.countDocuments(filter);
+    return successResponse(res, 200, {
+      sellerRequests,
+      pagination: createPaginationData(
+        page,
+        limit,
+        sellerRequestTotalCount,
+        "SellerRequests",
+      ),
+    });
   } catch (err) {
     next(err);
   }
