@@ -33,4 +33,4 @@ const sellerRequestSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.Model("SellerRequest", sellerRequestSchema);
+module.exports = mongoose.model("SellerRequest", sellerRequestSchema);
