@@ -100,7 +100,7 @@ exports.getNote = async (req, res, next) => {
       return errorResponse(
         res,
         404,
-        "Note not found or You have not access to this Note",
+        "Note not found or You do not have access to this Note",
       );
     }
     if (!note.product) {

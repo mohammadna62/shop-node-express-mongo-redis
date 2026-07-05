@@ -6,6 +6,7 @@ const {
   updateSellerRequestValidator,
 } = require("./../../validators/sellerRequest");
 const Product = require("./../../models/Product");
+const { isValidObjectId } = require("mongoose");
 
 exports.getAllSellerRequests = async (req, res, next) => {
   try {
@@ -70,6 +71,44 @@ exports.updateSellerRequest = async (req, res, next) => {
 };
 exports.deleteSellerRequest = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const user = req.user;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, " Wrong Seller Request ID !!");
+    }
+
+    const seller = await Seller.findOne({ user: user._id });
+
+    if (!seller) {
+      return errorResponse(res, 404, "Seller not found !!");
+    }
+
+    const sellerRequest = await SellerRequest.findById(id);
+
+    if (!sellerRequest) {
+      return errorResponse(res, 404, "Seller Request Not Found  !!");
+    }
+
+    if (sellerRequest.seller.toString() !== seller._id.toString()) {
+      return errorResponse(
+        res,
+        403,
+        "You do not have access to this request !!",
+      );
+    }
+    if (sellerRequest.status !== "pending") {
+      return errorResponse(
+        res,
+        400,
+        "Seller request already Rejected or Accepted , Can not be deleted",
+      );
+    }
+    await SellerRequest.findByIdAndDelete(id);
+
+    return successResponse(res, 200, {
+      message: "Seller Request deleted successfully",
+    });
   } catch (err) {
     next(err);
   }
