@@ -7,6 +7,7 @@ const locationsRouter =require("./routes/v1/location")
 const categoriesRouter =require("./routes/v1/category")
 const productsRouter =require("./routes/v1/product")
 const notesRouter =require("./routes/v1/note")
+const sellerRequestsRouter =require("./routes/v1/sellerRequest")
 const {redirectProduct} = require("./controllers/v1/shortLink")
 const { setHeaders } = require("./middlewares/setHeaders");
 
@@ -27,12 +28,13 @@ app.use('/api/v1/users',usersRouter)
 app.use('/api/v1/sellers',sellersRouter)
 app.use('/api/v1/products',productsRouter)
 app.use('/api/v1/notes',notesRouter)
+app.use('/api/v1/seller-requests',sellerRequestsRouter)
 app.get('/p/:shortIdentifier',redirectProduct)
 
 app.use((req, res) => {
   console.log("This Path Is Not Found", req.path);
   return res.status(404).json({
-    message: "404! Path Not Found. Please double check the PAth  / Method ",
+    message: "404! Path Not Found. Please double check the Path  / Method ",
   });
 });
 

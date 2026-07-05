@@ -19,7 +19,7 @@ router
 router
   .route("/:id")
   .get(getOneProduct)
-  .path(auth, roleGuard("ADMIN"), upload.array("images",10),updateProduct)
+  .patch(auth, roleGuard("ADMIN"), upload.array("images",10),updateProduct)
   .delete(auth, roleGuard("ADMIN"), deleteProduct);
 
 module.exports = router;
