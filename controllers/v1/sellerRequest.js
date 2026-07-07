@@ -29,7 +29,8 @@ exports.getAllSellerRequests = async (req, res, next) => {
         createdAt: "desc",
       })
       .skip((page - 1) * limit)
-      .limit(limit).lean();
+      .limit(limit)
+      .lean();
 
     const sellerRequestTotalCount = await SellerRequest.countDocuments(filter);
     return successResponse(res, 200, {
@@ -96,6 +97,30 @@ exports.createSellerRequest = async (req, res, next) => {
 };
 exports.updateSellerRequest = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const { status, adminComment } = req.body;
+    await updateSellerRequestValidator.validate(
+      { status, adminComment },
+      {
+        abortEarly: false,
+      },
+    );
+    const sellerRequest = await SellerRequest.findById(id);
+    
+    if (!sellerRequest) {
+      return errorResponse(res, 404, "Seller Request Not Found !!");
+    }
+    if (status === "reject") {
+      sellerRequest.status = "rejected";
+      if (adminComment) {
+        sellerRequest.adminComment = adminComment;
+      }
+      await sellerRequest.save();
+      return successResponse(res, 200, {
+        message: "Seller Request rejected !!",
+        sellerRequest,
+      });
+    }
   } catch (err) {
     next(err);
   }
