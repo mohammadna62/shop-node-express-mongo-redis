@@ -106,7 +106,7 @@ exports.updateSellerRequest = async (req, res, next) => {
       },
     );
     const sellerRequest = await SellerRequest.findById(id);
-    
+
     if (!sellerRequest) {
       return errorResponse(res, 404, "Seller Request Not Found !!");
     }
@@ -119,6 +119,37 @@ exports.updateSellerRequest = async (req, res, next) => {
       return successResponse(res, 200, {
         message: "Seller Request rejected !!",
         sellerRequest,
+      });
+    } else if (status === "accept") {
+      const product = await Product.findById(sellerRequest.product);
+      if (!product) {
+        return errorResponse(res, 404, "Product not Found !!");
+      }
+      const existingProductSeller = product.sellers.find(
+        (seller) =>
+          seller.seller.toString() === sellerRequest.seller.toString(),
+      );
+      if (existingProductSeller) {
+        return errorResponse(
+          res,
+          400,
+          "Seller already exist for this Product !!",
+        );
+      }
+      product.sellers.push({
+        seller: sellerRequest.seller,
+        price: sellerRequest.price,
+        stock: sellerRequest.stock,
+      });
+      await product.save();
+      sellerRequest.status = "accepted";
+      if (adminComment) {
+        sellerRequest.adminComment = adminComment;
+      }
+      await sellerRequest.save();
+      return successResponse(res, 200, {
+        message:
+          "Seller Request accepted successfully and added to the product seller list",
       });
     }
   } catch (err) {

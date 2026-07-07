@@ -30,7 +30,7 @@ const updateSellerRequestValidator = yup.object().shape({
   status: yup
     .string()
     .required("Status is required")
-    .oneOf(["approve", "reject"]),
+    .oneOf(["accept", "reject"]),
 
   adminComments: yup
     .string()
