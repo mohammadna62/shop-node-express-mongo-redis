@@ -10,6 +10,7 @@ const notesRouter =require("./routes/v1/note")
 const sellerRequestsRouter =require("./routes/v1/sellerRequest")
 const {redirectProduct} = require("./controllers/v1/shortLink")
 const { setHeaders } = require("./middlewares/setHeaders");
+const { errorHandler } = require("./middlewares/errorHandler");
 
 const app = express();
 
@@ -38,5 +39,5 @@ app.use((req, res) => {
   });
 });
 
-//app.use(errorHandler)
+app.use(errorHandler)
 module.exports = app;
