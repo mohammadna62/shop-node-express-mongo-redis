@@ -191,17 +191,28 @@ exports.deleteProduct = async (req, res, next) => {
     if (!isValidObjectId(id)) {
       return errorResponse(res, 400, "Product ID is Not Correct");
     }
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return errorResponse(res, 404, "Product Not Found");
+    }
+    await Note.deleteMany({ product: id });
 
     const deletedProduct = await Product.findByIdAndDelete(id);
-
-    deletedProduct?.images?.map((image) =>
-      fs.unlink(`public/images/products/${image}`, (err) => next(err)),
-    );
+    if (product.images && product.images.length > 0) {
+      for (const image of product.images) {
+        try {
+          await fs.promises.unlink(`public/images/products/${image}`);
+        } catch (err) {
+          console.error(`Error deleting image ${image}:`, err.message);
+        }
+      }
+    }
 
     if (!deletedProduct) {
       return errorResponse(res, 404, "Product Not Found");
     }
-    //await Note.deleteMany({ product: id });
+
     return successResponse(res, 200, {
       message: "Product remove Successfully",
       product: deletedProduct,
