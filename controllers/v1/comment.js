@@ -19,14 +19,14 @@ exports.getComments = async (req, res, next) => {
     }
     const comments = await Comment.find({ product: productId })
       .populate({
-        path:"user",
-        select:"content"
+        path: "user",
+        select: "content",
       })
       .populate({
         path: "replies",
         populate: {
           path: "user",
-          select:"content"
+          select: "content",
         },
       })
       .lean();
@@ -102,7 +102,31 @@ exports.deleteComment = async (req, res, next) => {
 
 exports.addReply = async (req, res, next) => {
   try {
-    //! Codes
+    const user = req.user;
+    const { commentId } = req.params;
+    const { content } = req.body;
+    if (!isValidObjectId(commentId)) {
+      return errorResponse(res, 400, "Comment ID is not valid !!");
+    }
+    await addReplyValidator.validate({ content }, { abortEarly: false });
+
+    const reply = await Comment.findByIdAndUpdate(
+      commentId,
+      {
+        $push: {
+          replies: {
+            content,
+            user: user._id,
+          },
+        },
+      },
+      { new: true },
+    );
+    if(!reply){
+      return errorResponse(res , 404 ,"Comment not Found !!")
+    }
+
+    return successResponse(res , 200 , {reply})
   } catch (err) {
     next(err);
   }

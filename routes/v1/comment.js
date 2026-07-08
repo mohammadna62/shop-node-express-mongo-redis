@@ -17,10 +17,10 @@ router
   .route("/:commentId")
   .patch(auth, updateComments)
   .delete(auth, roleGuard("ADMIN"), deleteComment);
-router.route("/:commentID/reply").post(auth, addReply);
+router.route("/:commentId/reply").post(auth, addReply);
 
 router
-  .route("/:commentID/reply/:replyId")
+  .route("/:commentId/reply/:replyId")
   .patch(auth, updateReply)
   .delete(auth, deleteReply);
 
