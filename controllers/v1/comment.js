@@ -12,7 +12,28 @@ const { isValidObjectId } = require("mongoose");
 
 exports.getComments = async (req, res, next) => {
   try {
-    //! Codes
+    const { productId } = req.query;
+
+    if (!isValidObjectId(productId)) {
+      return errorResponse(res, 400, "Product Id is not correct !!");
+    }
+    const comments = await Comment.find({ product: productId })
+      .populate({
+        path:"user",
+        select:"content"
+      })
+      .populate({
+        path: "replies",
+        populate: {
+          path: "user",
+          select:"content"
+        },
+      })
+      .lean();
+    if (!comments) {
+      return errorResponse(res, 404, "There is not any Comments !!");
+    }
+    return successResponse(res, 200, comments);
   } catch (err) {
     next(err);
   }
@@ -60,9 +81,9 @@ exports.updateComments = async (req, res, next) => {
 exports.deleteComment = async (req, res, next) => {
   try {
     const { commentId } = req.params;
-   if(!isValidObjectId(commentId)){
-    return errorResponse(res , 400 , " Invalid Comment ID !!")
-   }
+    if (!isValidObjectId(commentId)) {
+      return errorResponse(res, 400, " Invalid Comment ID !!");
+    }
 
     const comment = await Comment.findById(commentId);
 
