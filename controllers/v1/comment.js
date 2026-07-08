@@ -2,6 +2,13 @@ const Product = require("./../../models/Product");
 const Comment = require("./../../models/Comment");
 
 const { errorResponse, successResponse } = require("./../../helpers/responses");
+const {
+  createCommentValidator,
+  updateCommentValidator,
+  addReplyValidator,
+  updateReplyValidator,
+} = require("../../validators/comment");
+const { isValidObjectId } = require("mongoose");
 
 exports.getComments = async (req, res, next) => {
   try {
@@ -16,7 +23,10 @@ exports.createComment = async (req, res, next) => {
     const user = req.user;
     const { productId, rating, content } = req.body;
 
-    //TODO Validator
+    await createCommentValidator.validate(
+      { productId, rating, content },
+      { abortEarly: false },
+    );
     const product = await Product.findById(productId);
 
     if (!product) {
@@ -49,7 +59,21 @@ exports.updateComments = async (req, res, next) => {
 
 exports.deleteComment = async (req, res, next) => {
   try {
-    //! Codes
+    const { commentId } = req.params;
+   if(!isValidObjectId(commentId)){
+    return errorResponse(res , 400 , " Invalid Comment ID !!")
+   }
+
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return errorResponse(res, 404, "Comment not found !!");
+    }
+    const deletedComment = await Comment.findByIdAndDelete(commentId);
+    return successResponse(res, 200, {
+      message: "Comment Deleted Successfully",
+      comment: deletedComment,
+    });
   } catch (err) {
     next(err);
   }

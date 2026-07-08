@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.route("/").get(getComments).post(auth, createComment);
 router
-  .route("/:commentID")
+  .route("/:commentId")
   .patch(auth, updateComments)
   .delete(auth, roleGuard("ADMIN"), deleteComment);
 router.route("/:commentID/reply").post(auth, addReply);
