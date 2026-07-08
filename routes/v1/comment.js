@@ -2,13 +2,13 @@ const express = require("express");
 const { auth } = require("./../../middlewares/auth");
 const roleGuard = require("./../../middlewares/roleGuard");
 const {
- getComments,
-createComment,
-updateComments,
-deleteComment,
-addReply,
-updateReply,
-deleteReply,
+  getComments,
+  createComment,
+  updateComments,
+  deleteComment,
+  addReply,
+  updateReply,
+  deleteReply,
 } = require("./../../controllers/v1/comment");
 const router = express.Router();
 
@@ -22,6 +22,6 @@ router.route("/:commentId/reply").post(auth, addReply);
 router
   .route("/:commentId/reply/:replyId")
   .patch(auth, updateReply)
-  .delete(auth, deleteReply);
+  .delete(auth, roleGuard("ADMIN"), deleteReply);
 
 module.exports = router;

@@ -122,11 +122,11 @@ exports.addReply = async (req, res, next) => {
       },
       { new: true },
     );
-    if(!reply){
-      return errorResponse(res , 404 ,"Comment not Found !!")
+    if (!reply) {
+      return errorResponse(res, 404, "Comment not Found !!");
     }
 
-    return successResponse(res , 200 , {reply})
+    return successResponse(res, 200, { reply });
   } catch (err) {
     next(err);
   }
@@ -142,7 +142,26 @@ exports.updateReply = async (req, res, next) => {
 
 exports.deleteReply = async (req, res, next) => {
   try {
-    //! Codes
+    const user = req.user;
+    const { commentId, replyId } = req.params;
+    if (!isValidObjectId(commentId) || !isValidObjectId(replyId)) {
+      return errorResponse(res, 400, "Comment or Reply ID is not valid !!");
+    }
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return errorResponse(res, 404, " Comment Not Found !!");
+    }
+    const reply = comment.replies.id(replyId);
+    if (!reply) {
+      return errorResponse(res, 404, " Reply Not Found !!");
+    }
+    comment.replies.pull(replyId);
+    await comment.save();
+
+    return successResponse(res, 200, {
+      message: "Reply deleted Successfully !!",
+    });
   } catch (err) {
     next(err);
   }
