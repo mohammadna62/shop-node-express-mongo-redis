@@ -4,7 +4,7 @@ const roleGuard = require("./../../middlewares/roleGuard");
 const {
   getComments,
   createComment,
-  updateComments,
+  updateComment,
   deleteComment,
   addReply,
   updateReply,
@@ -15,7 +15,7 @@ const router = express.Router();
 router.route("/").get(getComments).post(auth, createComment);
 router
   .route("/:commentId")
-  .patch(auth, updateComments)
+  .patch(auth, updateComment)
   .delete(auth, roleGuard("ADMIN"), deleteComment);
 router.route("/:commentId/reply").post(auth, addReply);
 

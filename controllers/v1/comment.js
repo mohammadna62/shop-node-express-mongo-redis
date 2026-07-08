@@ -70,9 +70,43 @@ exports.createComment = async (req, res, next) => {
   }
 };
 
-exports.updateComments = async (req, res, next) => {
+exports.updateComment = async (req, res, next) => {
   try {
-    //! Codes
+    const { commentId } = req.params;
+    const { content, rating } = req.body;
+    const user = req.user;
+
+    if (!isValidObjectId(commentId)) {
+      return errorResponse(res, 400, " Invalid Comment ID !!");
+    }
+
+    await updateCommentValidator.validate(
+      { content, rating },
+      { abortEarly: false },
+    );
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return errorResponse(res, 404, " Comment Not Found !!");
+    }
+
+    if (comment.user._id.toString() !== user._id.toString()) {
+      return errorResponse(res, 403, " You don have access to this action  !!");
+    }
+
+    const updatedComment = await Comment.findByIdAndUpdate(
+      commentId,
+      {
+        content,
+        rating,
+      },
+      { new: true },
+    );
+
+    return successResponse(res, 200, {
+      message: "Comment Updated Successfully",
+      comment: updatedComment,
+    });
   } catch (err) {
     next(err);
   }
