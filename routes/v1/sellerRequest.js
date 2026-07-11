@@ -11,12 +11,12 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(auth, roleGuard("SELLER"), getAllSellerRequests)
-  .post(auth, roleGuard("SELLER"), createSellerRequest);
+  .get(auth, roleGuard(["SELLER"]), getAllSellerRequests)
+  .post(auth, roleGuard(["SELLER"]), createSellerRequest);
 
 router
   .route("/:id")
-  .patch(auth, roleGuard("ADMIN"), updateSellerRequest)
-  .delete(auth, roleGuard("SELLER"), deleteSellerRequest);
+  .patch(auth, roleGuard(["ADMIN"]), updateSellerRequest)
+  .delete(auth, roleGuard(["SELLER"]), deleteSellerRequest);
 
 module.exports = router;

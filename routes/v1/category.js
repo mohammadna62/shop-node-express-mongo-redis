@@ -23,20 +23,20 @@ router = express.Router();
 router
   .route("/")
   .get(fetchAllCategories)
-  .post(auth, roleGuard("ADMIN"), upload.single("icon"), createCategory);
+  .post(auth, roleGuard(["ADMIN"]), upload.single("icon"), createCategory);
 router
   .route("/:categoryId")
-  .put(auth, roleGuard("ADMIN"), upload.single("icon"), editCategory)
-  .delete(auth, roleGuard("ADMIN"), deleteCategory);
+  .put(auth, roleGuard(["ADMIN"]), upload.single("icon"), editCategory)
+  .delete(auth, roleGuard(["ADMIN"]), deleteCategory);
 router
   .route("/sub")
-  .post(auth, roleGuard("ADMIN"), createSubCategory)
+  .post(auth, roleGuard(["ADMIN"]), createSubCategory)
   .get(getAllSubCategories);
 
 router
   .route("/sub/:categoryId")
   .get(getSubCategory)
-  .delete(auth, roleGuard("ADMIN"), deleteSubCategory)
-  .put(auth, roleGuard("ADMIN"), upload.single("icon"), editSubCategory);
+  .delete(auth, roleGuard(["ADMIN"]), deleteSubCategory)
+  .put(auth, roleGuard(["ADMIN"]), upload.single("icon"), editSubCategory);
 
 module.exports = router;

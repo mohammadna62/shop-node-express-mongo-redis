@@ -11,9 +11,9 @@ const {
 
 router
   .route("/")
-  .post(auth, roleGuard("SELLER"), create)
-  .patch(auth, roleGuard("SELLER"), update)
-  .delete(auth, roleGuard("SELLER"), deleteSeller)
-  .get(auth, roleGuard("SELLER"), get);
+  .post(auth, roleGuard(["SELLER"]), create)
+  .patch(auth, roleGuard(["SELLER"]), update)
+  .delete(auth, roleGuard(["SELLER"]), deleteSeller)
+  .get(auth, roleGuard(["SELLER"]), get);
 
 module.exports = router;

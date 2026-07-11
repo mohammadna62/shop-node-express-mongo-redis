@@ -16,12 +16,12 @@ router.route("/").get(getComments).post(auth, createComment);
 router
   .route("/:commentId")
   .patch(auth, updateComment)
-  .delete(auth, roleGuard("ADMIN"), deleteComment);
+  .delete(auth, roleGuard(["ADMIN"]), deleteComment);
 router.route("/:commentId/reply").post(auth, addReply);
 
 router
   .route("/:commentId/reply/:replyId")
   .patch(auth, updateReply)
-  .delete(auth, roleGuard("ADMIN"), deleteReply);
+  .delete(auth, roleGuard(["ADMIN","SELLER"]), deleteReply);
 
 module.exports = router;
