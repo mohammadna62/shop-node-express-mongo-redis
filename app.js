@@ -9,6 +9,7 @@ const productsRouter = require("./routes/v1/product");
 const notesRouter = require("./routes/v1/note");
 const sellerRequestsRouter = require("./routes/v1/sellerRequest");
 const commentsRouter = require("./routes/v1/comment");
+const cartsRouter = require("./routes/v1/cart");
 const { redirectProduct } = require("./controllers/v1/shortLink");
 const { setHeaders } = require("./middlewares/setHeaders");
 const { errorHandler } = require("./middlewares/errorHandler");
@@ -32,6 +33,7 @@ app.use("/api/v1/products", productsRouter);
 app.use("/api/v1/notes", notesRouter);
 app.use("/api/v1/seller-requests", sellerRequestsRouter);
 app.use("/api/v1/comments", commentsRouter);
+app.use("/api/v1/carts", cartsRouter);
 app.get("/p/:shortIdentifier", redirectProduct);
 
 app.use((req, res) => {
