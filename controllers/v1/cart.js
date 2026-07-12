@@ -83,7 +83,7 @@ exports.addToCart = async (req, res, next) => {
       });
     }
     await cart.save();
-    return successResponse(res, 200 , {cart})
+    return successResponse(res, 200, { cart });
   } catch (err) {
     next(err);
   }
@@ -91,7 +91,34 @@ exports.addToCart = async (req, res, next) => {
 
 exports.removeFromCart = async (req, res, next) => {
   try {
-    //! Code
+    const user = req.user;
+    const { sellerId, productId } = req.body;
+
+    await removeFromCartValidator.validate(req.body, { abortEarly: false });
+
+    const cart = await Cart.findOne({ user: user._id });
+    if (!cart) {
+      return errorResponse(res, 404, "Cart not found for the user !!");
+    }
+
+    const itemIndex = cart.items.findIndex(
+      (item) =>
+        item.product.toString() === productId.toString() &&
+        item.seller.toString() === sellerId.toString(),
+    );
+
+    if (itemIndex === -1) {
+      return errorResponse(res, 404, "Product not found in your cart !!");
+    }
+
+    cart.items.splice(itemIndex, 1);
+
+    await cart.save();
+
+    return successResponse(res, 200, {
+      message: "Product Removed Successfully ",
+      cart,
+    });
   } catch (err) {
     next(err);
   }
