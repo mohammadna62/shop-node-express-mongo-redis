@@ -6,19 +6,22 @@ const cartItemSchema = new mongoose.Schema({
     ref: "Product",
     required: true,
   },
+
   seller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Seller",
     required: true,
   },
+
   quantity: {
     type: Number,
     required: true,
+    min: 1,
   },
+
   priceAtTimeOfAdding: {
     type: Number,
     required: true,
-    min: 1,
   },
 });
 
@@ -29,14 +32,18 @@ const cartSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     items: [cartItemSchema],
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  }
 );
 
-cartSchema.pre("save", function (next) {
+cartSchema.pre("save", function () {
   this.updatedAt = Date.now();
-  next();
 });
 
-module.exports = mongoose.model("Cart", cartSchema);
+const model = mongoose.model("Cart", cartSchema);
+
+module.exports = model;
