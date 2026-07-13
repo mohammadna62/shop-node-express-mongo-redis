@@ -1,13 +1,11 @@
-const express = require("express")
-const {auth} = require("./../../middlewares/auth")
-const roleGuard = require("./../../middlewares/roleGuard")
-const {getAllOrders,
-updateOrder}= require("./../../controllers/v1/order")
+const express = require("express");
+const { auth } = require("./../../middlewares/auth");
+const roleGuard = require("./../../middlewares/roleGuard");
+const { getAllOrders, updateOrder } = require("./../../controllers/v1/order");
 
-const router = express.Router()
+const router = express.Router();
 
+router.route("/").get(auth, getAllOrders);
+router.route("/:id").patch(auth, roleGuard(["ADMIN"]), updateOrder);
 
-router.route("/").get(auth,getAllOrders)
-router.route("/:id").path(auth,roleGuard(["ADMIN"]),updateOrder)
-
-module.exports = router
+module.exports = router;
