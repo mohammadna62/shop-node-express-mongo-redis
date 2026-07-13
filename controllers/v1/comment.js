@@ -15,7 +15,7 @@ exports.getComments = async (req, res, next) => {
     const { productId } = req.query;
 
     if (!isValidObjectId(productId)) {
-      return errorResponse(res, 400, "Product Id is not correct !!");
+      return errorResponse(res, 400, "Invalid Product ID");
     }
     const comments = await Comment.find({ product: productId })
       .populate({
@@ -31,7 +31,7 @@ exports.getComments = async (req, res, next) => {
       })
       .lean();
     if (!comments) {
-      return errorResponse(res, 404, "There is not any Comments !!");
+      return errorResponse(res, 404, "No Comments Found");
     }
     return successResponse(res, 200, comments);
   } catch (err) {
@@ -51,7 +51,7 @@ exports.createComment = async (req, res, next) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-      return errorResponse(res, 404, "Product Not Found !!");
+      return errorResponse(res, 404, "Product Not Found");
     }
 
     const newComment = await Comment.create({
@@ -77,7 +77,7 @@ exports.updateComment = async (req, res, next) => {
     const user = req.user;
 
     if (!isValidObjectId(commentId)) {
-      return errorResponse(res, 400, " Invalid Comment ID !!");
+      return errorResponse(res, 400, "Invalid Comment ID");
     }
 
     await updateCommentValidator.validate(
@@ -87,11 +87,11 @@ exports.updateComment = async (req, res, next) => {
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-      return errorResponse(res, 404, " Comment Not Found !!");
+      return errorResponse(res, 404,"Comment Not Found");
     }
 
     if (comment.user._id.toString() !== user._id.toString()) {
-      return errorResponse(res, 403, " You don have access to this action  !!");
+      return errorResponse(res, 403, "Access Denied");
     }
 
     const updatedComment = await Comment.findByIdAndUpdate(
@@ -116,13 +116,13 @@ exports.deleteComment = async (req, res, next) => {
   try {
     const { commentId } = req.params;
     if (!isValidObjectId(commentId)) {
-      return errorResponse(res, 400, " Invalid Comment ID !!");
+      return errorResponse(res, 400,"Invalid Comment ID");
     }
 
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-      return errorResponse(res, 404, "Comment not found !!");
+      return errorResponse(res, 404, "Comment Not Found");
     }
     const deletedComment = await Comment.findByIdAndDelete(commentId);
     return successResponse(res, 200, {
@@ -140,7 +140,7 @@ exports.addReply = async (req, res, next) => {
     const { commentId } = req.params;
     const { content } = req.body;
     if (!isValidObjectId(commentId)) {
-      return errorResponse(res, 400, "Comment ID is not valid !!");
+      return errorResponse(res, 400, "Invalid Comment ID");
     }
     await addReplyValidator.validate({ content }, { abortEarly: false });
 
@@ -157,7 +157,7 @@ exports.addReply = async (req, res, next) => {
       { new: true },
     );
     if (!reply) {
-      return errorResponse(res, 404, "Comment not Found !!");
+      return errorResponse(res, 404, "Comment Not Found");
     }
 
     return successResponse(res, 200, { reply });
@@ -173,7 +173,7 @@ exports.updateReply = async (req, res, next) => {
     const { content } = req.body;
 
     if (!isValidObjectId(commentId) || !isValidObjectId(replyId)) {
-      return errorResponse(res, 400, "Comment or Reply ID is not valid !!");
+      return errorResponse(res, 400, "Invalid Comment or Reply ID");
     }
 
     await updateReplyValidator.validate({ content }, { abortEarly: false });
@@ -181,14 +181,14 @@ exports.updateReply = async (req, res, next) => {
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-      return errorResponse(res, 404, " Comment Not Found !!");
+      return errorResponse(res, 404, "Comment Not Found");
     }
     let reply = comment.replies.id(replyId);
     if (!reply) {
-      return errorResponse(res, 404, " Reply Not Found !!");
+      return errorResponse(res, 404, "Reply Not Found");
     }
     if (reply.user.toString() !== user._id.toString()) {
-      return errorResponse(res, 403, " You don have access to this action  !!");
+      return errorResponse(res, 403, "Access Denied");
     }
 
    reply.content = content;
@@ -208,22 +208,22 @@ exports.deleteReply = async (req, res, next) => {
   try {
     const { commentId, replyId } = req.params;
     if (!isValidObjectId(commentId) || !isValidObjectId(replyId)) {
-      return errorResponse(res, 400, "Comment or Reply ID is not valid !!");
+      return errorResponse(res, 400, "Invalid Comment or Reply ID");
     }
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-      return errorResponse(res, 404, " Comment Not Found !!");
+      return errorResponse(res, 404, "Comment Not Found");
     }
     const reply = comment.replies.id(replyId);
     if (!reply) {
-      return errorResponse(res, 404, " Reply Not Found !!");
+      return errorResponse(res, 404, "Reply Not Found");
     }
     comment.replies.pull(replyId);
     await comment.save();
 
     return successResponse(res, 200, {
-      message: "Reply deleted Successfully !!",
+      message: "Reply deleted Successfully",
     });
   } catch (err) {
     next(err);

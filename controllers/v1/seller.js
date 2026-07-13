@@ -17,11 +17,11 @@ exports.create = async (req, res, next) => {
 
     const existingSeller = await Seller.findOne({ user: user._id });
     if (existingSeller) {
-      return errorResponse(res, 400, "Seller already existing !!");
+      return errorResponse(res, 400, "Seller Already Exists");
     }
     const city = cities.find((city) => +city.id === +cityId);
     if (!city) {
-      return errorResponse(res, 409, "City is not Valid !!");
+      return errorResponse(res, 409, "Invalid City");
     }
 
     const seller = await Seller.create({

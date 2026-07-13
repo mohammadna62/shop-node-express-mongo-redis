@@ -11,8 +11,8 @@ exports.errorHandler = (err, req, res, next) => {
       });
     });
 
-    console.log({ success: false, error: "Validation Error", data: errors });
-    return errorResponse(res, 400, "Validation Error", errors);
+    console.log({ success: false, error: "Validation Failed", data: errors });
+    return errorResponse(res, 400, "Validation Failed", errors);
   }
 
   let message = err.message || "Internal Server Error";

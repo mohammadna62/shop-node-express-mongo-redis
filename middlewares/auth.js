@@ -8,7 +8,7 @@ exports.auth = async (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
-      return errorResponse(res, 401, "Token not provided !!");
+      return errorResponse(res, 401, "Token Required");
     }
 
     const tokenArray = token.split(" ");
@@ -25,7 +25,7 @@ exports.auth = async (req, res, next) => {
     const decoded = jwt.decode(tokenValue, process.env.JWT_SECRET);
 
     if (!decoded) {
-      return errorResponse(res, 401, "Token is not valid !!");
+      return errorResponse(res, 401, "Invalid Token");
     }
 
     const userId = decoded.userId;
@@ -33,7 +33,7 @@ exports.auth = async (req, res, next) => {
     const user = await User.findOne({ _id: userId });
 
     if (!user) {
-      return errorResponse(res, 404, "User not found !!");
+      return errorResponse(res, 404, "User Not Found");
     }
 
     

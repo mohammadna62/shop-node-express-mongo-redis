@@ -61,7 +61,7 @@ exports.createCategory = async (req, res, next) => {
       const { filename, mimetype } = req.file;
 
       if (!supportedFormat.includes(mimetype)) {
-        return errorResponse(res, 400, "Unsupported image format !!");
+        return errorResponse(res, 400, "Unsupported Image Format");
       }
 
       icon = {
@@ -91,14 +91,14 @@ exports.deleteCategory = async (req, res, next) => {
   try {
     const { categoryId } = req.params;
     if (!isValidObjectId(categoryId)) {
-      return errorResponse(res, 401, "Category ID is Not Valid !!");
+      return errorResponse(res, 401, "Invalid Category ID");
     }
     const deletedCategory = await Category.findByIdAndDelete(categoryId);
     if (!deletedCategory) {
-      return errorResponse(res, 404, "Category is Not Found !!");
+      return errorResponse(res, 404, "Category Not Found");
     }
     return successResponse(res, 200, {
-      message: "Category Deleted Successfully ",
+      message: "Category Deleted Successfully",
       category: deletedCategory,
     });
   } catch (err) {
@@ -114,7 +114,7 @@ exports.editCategory = async (req, res, next) => {
     filters = JSON.parse(filters);
 
     if (!isValidObjectId(categoryId)) {
-      return errorResponse(res, 401, "Category ID is Not Valid !!");
+      return errorResponse(res, 401, "Invalid Category ID");
     }
 
     await categoryEditValidator.validate(
@@ -133,7 +133,7 @@ exports.editCategory = async (req, res, next) => {
       const { filename, mimetype } = req.file;
 
       if (!supportedFormat.includes(mimetype)) {
-        return errorResponse(res, 400, "Unsupported image format !!");
+        return errorResponse(res, 400, "Unsupported Image Format");
       }
 
       icon = {
@@ -154,7 +154,7 @@ exports.editCategory = async (req, res, next) => {
       { new: true },
     );
     if (!updatedCategory) {
-      return errorResponse(res, 404, "Category Not Found !!");
+      return errorResponse(res, 404, "Category Not Found");
     }
     return successResponse(res, 200, { category: updatedCategory });
   } catch (err) {

@@ -53,7 +53,7 @@ exports.send = async (req, res, next) => {
 
     const isBanned = await Ban.findOne({ phone });
     if (isBanned) {
-      return errorResponse(res, 403, "This Phone Number has been banned ");
+      return errorResponse(res, 403, "Phone Number Banned");
     }
 
     const { expired, remainingTime } = await getOtpDetails(phone);
@@ -83,13 +83,13 @@ exports.verify = async (req, res, next) => {
     const savedOtp = await redis.get(getOtpRedisPattern(phone));
 
     if (!savedOtp) {
-      return errorResponse(res, 400, "Wrong or expired OTP");
+      return errorResponse(res, 400, "Invalid or Expired OTP");
     }
 
     const otpIsCorrect = await bcrypt.compare(otp, savedOtp);
 
     if (!otpIsCorrect) {
-      return errorResponse(res, 400, "Wrong or expired OTP !!");
+      return errorResponse(res, 400, "Invalid or Expired OTP");
     }
 
     const existingUser = await User.findOne({ phone });
@@ -119,7 +119,7 @@ exports.verify = async (req, res, next) => {
     });
 
     return successResponse(res, 201, {
-      message: "User registed successfully :))",
+      message: "User Registered Successfully",
       token,
       user,
     });

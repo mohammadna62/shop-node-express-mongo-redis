@@ -35,7 +35,7 @@ exports.create = async (req, res, next) => {
     customFilters = JSON.parse(customFilters);
 
     if (!isValidObjectId(subCategory)) {
-      return errorResponse(res, 400, "SubCategory ID is not correct !!");
+      return errorResponse(res, 400, "Invalid SubCategory ID");
     }
 
     const validatedData = await createProductValidator.validate(
@@ -57,7 +57,7 @@ exports.create = async (req, res, next) => {
     for (let i = 0; i < req.files.length; i++) {
       const file = req.files[i];
       if (!supportedFormat.includes(file.mimetype)) {
-        return errorResponse(res, 400, "UnSupported image format !!");
+        return errorResponse(res, 400, "Unsupported Image Format");
       }
 
       images.push(file.filename);
@@ -91,7 +91,7 @@ exports.create = async (req, res, next) => {
     });
 
     return successResponse(res, 201, {
-      message: "Product created successfully :))",
+      message: "Product Created Successfully",
       product: newProduct,
     });
   } catch (err) {
@@ -102,7 +102,7 @@ exports.getOneProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id)) {
-      return errorResponse(res, 400, "Product ID is not Correct");
+      return errorResponse(res, 400, "Invalid Product ID");
     }
     const product = await Product.findById(id)
       .populate("subCategory")
@@ -130,7 +130,7 @@ exports.updateProduct = async (req, res, next) => {
     }
 
     if (!isValidObjectId(id)) {
-      return errorResponse(res, 400, " Product ID Is Not Valid !!");
+      return errorResponse(res, 400, "Invalid Product ID");
     }
 
     const validatedUpdateData = await updateProductValidator.validate(
@@ -151,7 +151,7 @@ exports.updateProduct = async (req, res, next) => {
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
         if (!supportedFormat.includes(file.mimetype)) {
-          return errorResponse(res, 400, "UnSupported image format !!");
+          return errorResponse(res, 400, "Unsupported Image Format");
         }
 
         images.push(file.filename);
@@ -172,7 +172,7 @@ exports.updateProduct = async (req, res, next) => {
     );
 
     if (!updatedProduct) {
-      return errorResponse(res, 404, "Product Not Found !!");
+      return errorResponse(res, 404, "Product Not Found");
     }
 
     return successResponse(res, 200, {
@@ -189,7 +189,7 @@ exports.deleteProduct = async (req, res, next) => {
     const { id } = req.params;
 
     if (!isValidObjectId(id)) {
-      return errorResponse(res, 400, "Product ID is Not Correct");
+      return errorResponse(res, 400, "Invalid Product ID");
     }
     const product = await Product.findById(id);
 
@@ -214,7 +214,7 @@ exports.deleteProduct = async (req, res, next) => {
     }
 
     return successResponse(res, 200, {
-      message: "Product remove Successfully",
+      message: "Product Remove Successfully",
       product: deletedProduct,
     });
   } catch (err) {

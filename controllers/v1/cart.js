@@ -23,17 +23,17 @@ exports.addToCart = async (req, res, next) => {
     const { sellerId, productId, quantity } = req.body;
 
     if (!isValidObjectId(sellerId) || !isValidObjectId(productId)) {
-      return errorResponse(res, 400, "Seller or Product id is not correct !!");
+      return errorResponse(res, 400, "Invalid Seller or Product ID");
     }
 
     const product = await Product.findById(productId).lean();
     if (!product) {
-      return errorResponse(res, 404, "Product not found !!");
+      return errorResponse(res, 404, "Product Not Found");
     }
 
     const seller = await Seller.findById(sellerId);
     if (!seller) {
-      return errorResponse(res, 404, "Seller not found !!");
+      return errorResponse(res, 404, "Seller Not Found");
     }
 
     const sellerDetails = product.sellers.find(
@@ -41,7 +41,7 @@ exports.addToCart = async (req, res, next) => {
     );
 
     if (!sellerDetails) {
-      return errorResponse(res, 400, "Seller does not sell this product !!");
+      return errorResponse(res, 400, "Product Not Sold by This Seller");
     }
 
     const cart = await Cart.findOne({ user: user._id });
@@ -98,7 +98,7 @@ exports.removeFromCart = async (req, res, next) => {
 
     const cart = await Cart.findOne({ user: user._id });
     if (!cart) {
-      return errorResponse(res, 404, "Cart not found for the user !!");
+      return errorResponse(res, 404, "Cart Not Found for User");
     }
 
     const itemIndex = cart.items.findIndex(
@@ -108,7 +108,7 @@ exports.removeFromCart = async (req, res, next) => {
     );
 
     if (itemIndex === -1) {
-      return errorResponse(res, 404, "Product not found in your cart !!");
+      return errorResponse(res, 404, "Product Not Found in Cart");
     }
 
     cart.items.splice(itemIndex, 1);
@@ -116,9 +116,35 @@ exports.removeFromCart = async (req, res, next) => {
     await cart.save();
 
     return successResponse(res, 200, {
-      message: "Product Removed Successfully ",
+      message: "Product Removed Successfully",
       cart,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.removeCart = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Invalid Cart ID");
+    }
+
+    const cart = await Cart.findById(id);
+
+    if (!cart) {
+      return errorResponse(res, 404, "Cart Not Found");
+    }
+    if (cart.user.toString() !== user._id.toString()) {
+      return errorResponse(res, 403, "Action Not Permitted");
+    }
+
+    await Cart.deleteOne({ _id: id });
+
+    return successResponse(res, 200, { message: "Cart Removed Successfully" });
   } catch (err) {
     next(err);
   }

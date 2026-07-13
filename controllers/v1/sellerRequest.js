@@ -17,7 +17,7 @@ exports.getAllSellerRequests = async (req, res, next) => {
     const seller = await Seller.findOne({ user: user._id });
 
     if (!seller) {
-      return errorResponse(res, 404, "You are not a Seller !!");
+      return errorResponse(res, 404, "Seller Access Required");
     }
 
     const filter = {
@@ -58,7 +58,7 @@ exports.createSellerRequest = async (req, res, next) => {
     const seller = await Seller.findOne({ user: user._id });
 
     if (!seller) {
-      errorResponse(res, 404, "Seller Not Found !!");
+      errorResponse(res, 404, "Seller Not Found");
     }
     const existingRequest = await SellerRequest.findOne({
       seller: seller._id,
@@ -69,14 +69,14 @@ exports.createSellerRequest = async (req, res, next) => {
       return errorResponse(
         res,
         400,
-        "You already sent a request for this Product !!",
+        "Request Already Sent for This Product",
       );
     }
 
     const product = await Product.findById(productId);
 
     if (!product) {
-      return errorResponse(res, 404, "Product Not Existing Anymore !!");
+      return errorResponse(res, 404, "Product Not Available");
     }
 
     const newCreateSellerRequest = await SellerRequest.create({
@@ -88,7 +88,7 @@ exports.createSellerRequest = async (req, res, next) => {
     });
 
     return successResponse(res, 201, {
-      message: " Seller Request Created Successfully",
+      message: "Seller Request Created Successfully",
       request: newCreateSellerRequest,
     });
   } catch (err) {
@@ -108,7 +108,7 @@ exports.updateSellerRequest = async (req, res, next) => {
     const sellerRequest = await SellerRequest.findById(id);
 
     if (!sellerRequest) {
-      return errorResponse(res, 404, "Seller Request Not Found !!");
+      return errorResponse(res, 404, "Seller Request Not Found");
     }
     if (status === "reject") {
       sellerRequest.status = "rejected";
@@ -117,13 +117,13 @@ exports.updateSellerRequest = async (req, res, next) => {
       }
       await sellerRequest.save();
       return successResponse(res, 200, {
-        message: "Seller Request rejected !!",
+        message: "Seller Request Rejected",
         sellerRequest,
       });
     } else if (status === "accept") {
       const product = await Product.findById(sellerRequest.product);
       if (!product) {
-        return errorResponse(res, 404, "Product not Found !!");
+        return errorResponse(res, 404, "Product Not Found");
       }
       const existingProductSeller = product.sellers.find(
         (seller) =>
@@ -133,7 +133,7 @@ exports.updateSellerRequest = async (req, res, next) => {
         return errorResponse(
           res,
           400,
-          "Seller already exist for this Product !!",
+          "Seller Already Exists for This Product",
         );
       }
       product.sellers.push({
@@ -149,7 +149,7 @@ exports.updateSellerRequest = async (req, res, next) => {
       await sellerRequest.save();
       return successResponse(res, 200, {
         message:
-          "Seller Request accepted successfully and added to the product seller list",
+          "Seller Request Accepted Successfully",
       });
     }
   } catch (err) {
@@ -162,39 +162,39 @@ exports.deleteSellerRequest = async (req, res, next) => {
     const user = req.user;
 
     if (!isValidObjectId(id)) {
-      return errorResponse(res, 400, " Wrong Seller Request ID !!");
+      return errorResponse(res, 400, "Invalid Seller Request ID");
     }
 
     const seller = await Seller.findOne({ user: user._id });
 
     if (!seller) {
-      return errorResponse(res, 404, "Seller not found !!");
+      return errorResponse(res, 404, "Seller Not Found");
     }
 
     const sellerRequest = await SellerRequest.findById(id);
 
     if (!sellerRequest) {
-      return errorResponse(res, 404, "Seller Request Not Found  !!");
+      return errorResponse(res, 404, "Seller Request Not Found");
     }
 
     if (sellerRequest.seller.toString() !== seller._id.toString()) {
       return errorResponse(
         res,
         403,
-        "You do not have access to this request !!",
+        "Access Denied",
       );
     }
     if (sellerRequest.status !== "pending") {
       return errorResponse(
         res,
         400,
-        "Seller request already Rejected or Accepted , Can not be deleted",
+        "Cannot Delete Processed Request",
       );
     }
     await SellerRequest.findByIdAndDelete(id);
 
     return successResponse(res, 200, {
-      message: "Seller Request deleted successfully",
+      message: "Seller Request Deleted Successfully",
     });
   } catch (err) {
     next(err);

@@ -15,11 +15,11 @@ exports.banUser = async (req, res, next) => {
     const user = await User.findOne({ _id: userId });
 
     if (!user) {
-      return errorResponse(res, 404, "User not found !!");
+      return errorResponse(res, 404, "User Not Found");
     }
 
     if (user.roles.includes("ADMIN")) {
-      return errorResponse(res, 403, "You cannot ban an admin !!");
+      return errorResponse(res, 403, "Cannot Ban Admin");
     }
 
     const deletedUser = await User.findOneAndDelete({ _id: userId });
@@ -28,7 +28,7 @@ exports.banUser = async (req, res, next) => {
 
     return successResponse(res, 200, {
       user: deletedUser,
-      message: "User banned successfully, user and posts removed",
+      message: "User Banned Successfully",
     });
   } catch (err) {
     next(err);
@@ -44,7 +44,7 @@ exports.createAddress = async (req, res, next) => {
     const city = cities.find((city) => +city.id === +cityId);
 
     if (!city) {
-      return errorResponse(res, 409, "City is not valid !!");
+      return errorResponse(res, 409, "Invalid City");
     }
 
     const addressObject = {
@@ -69,7 +69,7 @@ exports.createAddress = async (req, res, next) => {
 
     return successResponse(res, 201, {
       user: updatedUser,
-      message: "Address created successfully :))",
+      message: "Address Created Successfully",
     });
   } catch (err) {
     next(err);
@@ -83,14 +83,14 @@ exports.deleteAddress = async (req, res, next) => {
 
     const address = user.addresses.id(addressId);
     if (!address) {
-      return errorResponse(res, 404, "Address Not Found !!");
+      return errorResponse(res, 404, "Address Not Found");
     }
     await user.addresses.pull(addressId);
     const updatedUser = await user.save();
 
     return successResponse(res, 200, {
       user: updatedUser,
-      message: "Address deleted successfully",
+      message: "Address Deleted Successfully",
     });
   } catch (err) {
     next(err);
@@ -108,7 +108,7 @@ exports.updateAddress = async (req, res, next) => {
     const userAddress = user.addresses.id(addressId);
 
     if (!userAddress) {
-      return errorResponse(res, 404, "Address not found !!");
+      return errorResponse(res, 404, "Address Not Found");
     }
 
     userAddress.name = name || userAddress.name;
@@ -121,7 +121,7 @@ exports.updateAddress = async (req, res, next) => {
 
     return successResponse(res, 200, {
       user: updatedUser,
-      message: "Address updated successfully :))",
+      message: "Address Updated Successfully",
     });
   } catch (err) {
     next(err);

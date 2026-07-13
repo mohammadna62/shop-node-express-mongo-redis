@@ -35,7 +35,7 @@ exports.getNotes = async (req, res, next) => {
       }
     }
     if (!notes) {
-      return errorResponse(res, 404, "There is not any Note exist !!");
+      return errorResponse(res, 404, "No Notes Found");
     }
     const userTotalNote = await Note.countDocuments({ user: user._id });
     return successResponse(res, 200, {
@@ -68,7 +68,7 @@ exports.addNote = async (req, res, next) => {
       return errorResponse(
         res,
         400,
-        "Another Note already exist for this product ",
+        "Note Already Exists for This Product",
       );
     }
     const newNote = await Note.create({
@@ -77,7 +77,7 @@ exports.addNote = async (req, res, next) => {
       content: validatedNoteData.content,
     });
     return successResponse(res, 201, {
-      message: "Note created successfully",
+      message: "Note Created Successfully",
       note: newNote,
     });
   } catch (err) {
@@ -90,7 +90,7 @@ exports.getNote = async (req, res, next) => {
     const user = req.user;
     const { noteId } = req.params;
     if (!isValidObjectId(noteId)) {
-      return errorResponse(res, 400, "Invalid Note Id");
+      return errorResponse(res, 400, "Invalid Note ID");
     }
     const note = await Note.findById(noteId)
       .populate("user")
@@ -100,12 +100,12 @@ exports.getNote = async (req, res, next) => {
       return errorResponse(
         res,
         404,
-        "Note not found or You do not have access to this Note",
+        "Note Not Found or Access Denied",
       );
     }
     if (!note.product) {
       await Note.findByIdAndDelete(noteId);
-      return errorResponse(res, 404, "This Product has been removed !!");
+      return errorResponse(res, 404, "Product Removed Successfully");
     }
     const product = {
       ...note.product,
@@ -133,7 +133,7 @@ exports.editNote = async (req, res, next) => {
     );
 
     if (!isValidObjectId(noteId)) {
-      return errorResponse(res, 400, "Note ID not Valid !!");
+      return errorResponse(res, 400, "Invalid Note ID");
     }
     const existingNote = await Note.findById(noteId);
 
@@ -141,7 +141,7 @@ exports.editNote = async (req, res, next) => {
       return errorResponse(
         res,
         404,
-        "Note Not Found or You do not have access!!",
+        "Note Not Found or Access Denied",
       );
     }
 
@@ -168,7 +168,7 @@ exports.removeNote = async (req, res, next) => {
     const { noteId } = req.params;
 
     if (!isValidObjectId(noteId)) {
-      return errorResponse(res, 400, "Note ID is not Valid !!");
+      return errorResponse(res, 400, "Invalid Note ID");
     }
 
     const existingNote = await Note.findById(noteId);
@@ -176,13 +176,13 @@ exports.removeNote = async (req, res, next) => {
       return errorResponse(
         res,
         404,
-        "Note Not Found or You have nt access to it !!",
+        "Note Not Found or Access Denied",
       );
     }
 
     const deletedNote = await Note.findByIdAndDelete(noteId);
     return successResponse(res, 200, {
-      message: " Note removed successfully",
+      message: "Note Removed Successfully",
       note: deletedNote,
     });
   } catch (err) {
