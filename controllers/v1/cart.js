@@ -7,9 +7,18 @@ const Product = require("./../../models/Product");
 const Seller = require("./../../models/Seller");
 const { errorResponse, successResponse } = require("./../../helpers/responses");
 const { isValidObjectId } = require("mongoose");
+const { populate } = require("../../models/Users");
 exports.getCart = async (req, res, next) => {
   try {
-    //! Code
+    const user = req.user;
+
+    const cart = await Cart.findOne({ user: user._id }).populate("items.product").populate("items.seller");
+
+    if (!cart) {
+      return errorResponse(res, 404, "Cart Not Found");
+    }
+
+    return successResponse(res, 200, { cart });
   } catch (err) {
     next(err);
   }
