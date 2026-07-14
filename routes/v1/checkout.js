@@ -7,7 +7,7 @@ const {
 
 const router = express.Router();
 
-router.route("/:id").post(auth, createCheckout);
+router.route("/").post(auth, createCheckout);
 router.route("/verify").get(verifyCheckout);
 
 module.exports = router;
