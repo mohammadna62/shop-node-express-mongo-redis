@@ -34,7 +34,8 @@ const orderSchema = new mongoose.Schema(
     items: [checkoutItemSchema],
     shippingAddress: {
       postalCode: { type: String, required: true },
-      coordinates: {
+
+      location: {
         lat: {
           type: Number,
           required: true,
