@@ -25,6 +25,7 @@ const cartItemSchema = new mongoose.Schema({
   },
 });
 
+
 const cartSchema = new mongoose.Schema(
   {
     user: {
@@ -37,8 +38,14 @@ const cartSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
+cartSchema.virtual("totalPrice").get(function () {
+  return this.items.reduce((total, item) => {
+    return total + item.priceAtTimeOfAdding * item.quantity;
+  }, 0);
+});
+
 
 cartSchema.pre("save", function () {
   this.updatedAt = Date.now();

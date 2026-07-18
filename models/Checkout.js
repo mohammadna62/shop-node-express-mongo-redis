@@ -24,7 +24,10 @@ const checkoutItemSchema = new mongoose.Schema({
     required: true,
   },
 });
-const orderSchema = new mongoose.Schema(
+
+
+
+const checkoutSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -64,7 +67,12 @@ const orderSchema = new mongoose.Schema(
 
   { timestamps: true },
 );
+checkoutSchema.virtual("totalPrice").get(function () {
+  return this.items.reduce((total, item) => {
+    return total + item.priceAtTimeOfPurchase * item.quantity;
+  }, 0);
+});
 
-const model = mongoose.model("Checkout", orderSchema);
+const model = mongoose.model("Checkout", checkoutSchema);
 
 module.exports = model;

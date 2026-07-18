@@ -19,11 +19,12 @@ const orderItemSchema = new mongoose.Schema({
     min: 1,
   },
 
-  priceAtTimeOfAdding: {
+  priceAtTimeOfPurchase: {
     type: Number,
     required: true,
   },
 });
+
 const orderSchema = new mongoose.Schema(
   {
     user: {
@@ -63,13 +64,18 @@ const orderSchema = new mongoose.Schema(
     },
     authority: {
       type: Number,
-      unique:true,
+      unique: true,
       required: true,
     },
   },
 
   { timestamps: true },
 );
+orderSchema.virtual("totalPrice").get(function () {
+  return this.items.reduce((total, item) => {
+    return total + item.priceAtTimeOfPurchase * item.quantity;
+  }, 0);
+});
 
 const model = mongoose.model("Order", orderSchema);
 

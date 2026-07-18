@@ -45,9 +45,10 @@ exports.createCheckout = async (req, res, next) => {
       items: checkoutItems,
       shippingAddress,
     });
-
+     console.log(newCheckout.totalPrice);
+     
     const payment = await createPayment({
-      amountInRial: 3000,
+      amountInRial: newCheckout.totalPrice,
       description: `سفارش با شناسه ${newCheckout._id}`,
       mobile: "09921558293",
     });
@@ -57,7 +58,7 @@ exports.createCheckout = async (req, res, next) => {
     await newCheckout.save();
 
     return successResponse(res, 201, {
-      message: "Checkout created successfully :))",
+      message: "Checkout Created Successfully",
       checkout: newCheckout,
       paymentUrl: payment.paymentUrl,
     });
