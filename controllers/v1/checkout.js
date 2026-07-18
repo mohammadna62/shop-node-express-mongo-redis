@@ -29,7 +29,7 @@ exports.createCheckout = async (req, res, next) => {
       );
 
       if (!sellerDetails) {
-        return errorResponse(res, 400, "Seller does not sell this product !!");
+        return errorResponse(res, 400, "Product Not Sold by This Seller");
       }
 
       checkoutItems.push({
@@ -45,12 +45,11 @@ exports.createCheckout = async (req, res, next) => {
       items: checkoutItems,
       shippingAddress,
     });
-     console.log(newCheckout.totalPrice);
-     
+
     const payment = await createPayment({
       amountInRial: newCheckout.totalPrice,
       description: `سفارش با شناسه ${newCheckout._id}`,
-      mobile: "09921558293",
+      mobile: user.phone,
     });
 
     newCheckout.authority = payment.authority;
@@ -69,7 +68,9 @@ exports.createCheckout = async (req, res, next) => {
 
 exports.verifyCheckout = async (req, res, next) => {
   try {
-    //Codes
+    return res.json({
+      message: "Payment Result",
+    });
   } catch (err) {
     next(err);
   }

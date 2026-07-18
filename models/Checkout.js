@@ -25,8 +25,6 @@ const checkoutItemSchema = new mongoose.Schema({
   },
 });
 
-
-
 const checkoutSchema = new mongoose.Schema(
   {
     user: {
@@ -34,9 +32,14 @@ const checkoutSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     items: [checkoutItemSchema],
+
     shippingAddress: {
-      postalCode: { type: String, required: true },
+      postalCode: {
+        type: String,
+        required: true,
+      },
 
       location: {
         lat: {
@@ -48,10 +51,12 @@ const checkoutSchema = new mongoose.Schema(
           required: true,
         },
       },
+
       address: {
         type: String,
         required: true,
       },
+
       cityId: {
         type: Number,
         required: true,
@@ -59,19 +64,28 @@ const checkoutSchema = new mongoose.Schema(
     },
 
     authority: {
-      type: Number,
+      type: String,
       unique: true,
       required: true,
     },
-  },
 
-  { timestamps: true },
+    expiresAt: {
+      //* TTL Method ->Time To Live
+      type: Date,
+      required: true,
+      default: () =>Date.now() + 5 * 1000
+    },
+  },
+  { timestamps: true }
 );
+
 checkoutSchema.virtual("totalPrice").get(function () {
   return this.items.reduce((total, item) => {
     return total + item.priceAtTimeOfPurchase * item.quantity;
   }, 0);
 });
+
+checkoutSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const model = mongoose.model("Checkout", checkoutSchema);
 
