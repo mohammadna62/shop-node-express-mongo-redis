@@ -1,7 +1,8 @@
 const { createPayment, verifyPayment } = require("../../services/zarinpal");
 const Cart = require("./../../models/Cart");
 const Checkout = require("./../../models/Checkout");
-const Order = require("./../../models/Order")
+const Order = require("./../../models/Order");
+const Product = require("./../../models/Product");
 const { createCheckoutValidator } = require("./../../validators/checkout");
 const { errorResponse, successResponse } = require("./../../helpers/responses");
 
@@ -99,9 +100,26 @@ exports.verifyCheckout = async (req, res, next) => {
 
     await order.save();
 
-    return res.json({
-      query: req.query,
-      params: req.params,
+    for (const item of checkout.items) {
+      const product = await Product.findById(item.product);
+
+      if (product) {
+        const sellerInfo = product.sellers.find(
+          (sellerData) => sellerData.seller.toString === item.seller.toString(),
+        );
+
+        sellerInfo.stock -= item.quantity;
+        await product.save();
+      }
+    }
+
+    await Cart.findOneAndUpdate({ user: checkout.user }, { items: [] });
+
+    await Checkout.deleteOne({ _id: checkout._id });
+
+    return successResponse(res, 200, {
+      message: "Payment Verified",
+      order,
     });
   } catch (err) {
     next(err);
