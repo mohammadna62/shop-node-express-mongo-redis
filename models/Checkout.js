@@ -73,10 +73,10 @@ const checkoutSchema = new mongoose.Schema(
       //* TTL Method ->Time To Live
       type: Date,
       required: true,
-      default: () =>Date.now() + 5 * 1000
+      default: () => Date.now() + 5 * 1000,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 checkoutSchema.virtual("totalPrice").get(function () {

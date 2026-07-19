@@ -1,6 +1,7 @@
-const { createPayment } = require("../../services/zarinpal");
+const { createPayment, verifyPayment } = require("../../services/zarinpal");
 const Cart = require("./../../models/Cart");
 const Checkout = require("./../../models/Checkout");
+const Order = require("./../../models/Order")
 const { createCheckoutValidator } = require("./../../validators/checkout");
 const { errorResponse, successResponse } = require("./../../helpers/responses");
 
@@ -48,7 +49,7 @@ exports.createCheckout = async (req, res, next) => {
 
     const payment = await createPayment({
       amountInRial: newCheckout.totalPrice,
-      description: `سفارش با شناسه ${newCheckout._id}`,
+      description: ` Order Number ${newCheckout._id}`,
       mobile: user.phone,
     });
 
@@ -68,8 +69,39 @@ exports.createCheckout = async (req, res, next) => {
 
 exports.verifyCheckout = async (req, res, next) => {
   try {
+    const { Status, Authority: authority } = req.query;
+
+    const alreadyCreatedOrder = await Order.findOne({ authority });
+    if (alreadyCreatedOrder) {
+      return errorResponse(res, 400, "Payment Already Verified");
+    }
+
+    const checkout = await Checkout.findOne({ authority });
+    if (!checkout) {
+      return errorResponse(res, 404, "Checkout Not Found");
+    }
+
+    const payment = await verifyPayment({
+      authority,
+      amountInRial: checkout.totalPrice,
+    });
+
+    if (![100, 101].includes(payment.data.code)) {
+      return errorResponse(res, 400, "Payment Not Verified");
+    }
+
+    const order = new Order({
+      user: checkout.user,
+      authority: checkout.authority,
+      items: checkout.items,
+      shippingAddress: checkout.shippingAddress,
+    });
+
+    await order.save();
+
     return res.json({
-      message: "Payment Result",
+      query: req.query,
+      params: req.params,
     });
   } catch (err) {
     next(err);
