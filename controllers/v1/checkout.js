@@ -73,6 +73,7 @@ exports.verifyCheckout = async (req, res, next) => {
     const { Status, Authority: authority } = req.query;
 
     const alreadyCreatedOrder = await Order.findOne({ authority });
+
     if (alreadyCreatedOrder) {
       return errorResponse(res, 400, "Payment Already Verified");
     }
@@ -87,7 +88,7 @@ exports.verifyCheckout = async (req, res, next) => {
       amountInRial: checkout.totalPrice,
     });
 
-    if (![100, 101].includes(payment.data.code)) {
+    if (![100, 101].includes(payment.code)) {
       return errorResponse(res, 400, "Payment Not Verified");
     }
 
@@ -105,7 +106,8 @@ exports.verifyCheckout = async (req, res, next) => {
 
       if (product) {
         const sellerInfo = product.sellers.find(
-          (sellerData) => sellerData.seller.toString === item.seller.toString(),
+          (sellerData) =>
+            sellerData.seller.toString() === item.seller.toString(),
         );
 
         sellerInfo.stock -= item.quantity;
