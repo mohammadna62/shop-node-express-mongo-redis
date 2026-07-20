@@ -1,6 +1,8 @@
-const { successResponse } = require("../../helpers/responses");
+const { isValidObjectId } = require("mongoose");
+const { successResponse, errorResponse } = require("../../helpers/responses");
 const Order = require("./../../models/Order");
 const { createPaginationData } = require("./../../utils/index");
+const { updateOrderValidator } = require("./../../validators/order");
 
 exports.getAllOrders = async (req, res, next) => {
   try {
@@ -32,7 +34,31 @@ exports.getAllOrders = async (req, res, next) => {
 
 exports.updateOrder = async (req, res, next) => {
   try {
-    //Codes
+    const { postTrackingCode, status } = req.body;
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Invalid Order ID");
+    }
+    await updateOrderValidator.validate(req.body, { abortEarly: false });
+
+    const updateOrder = await Order.findByIdAndUpdate(
+      id,
+      {
+        status,
+        postTrackingCode,
+      },
+      { new: true },
+    );
+
+    if (!updateOrder) {
+      return errorResponse(res, 404, "Order Not Found");
+    }
+
+    return successResponse(res, 200, {
+      order: updateOrder,
+      message: "Order Updated Successfully",
+    });
   } catch (err) {
     next(err);
   }
