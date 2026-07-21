@@ -25,7 +25,7 @@ exports.getAllOrders = async (req, res, next) => {
 
     return successResponse(res, 200, {
       orders,
-      pagination: createPaginationData(page, limit, totalOrders, "Orders"),
+      pagination: createPaginationData(+page, +limit, totalOrders, "Orders"),
     });
   } catch (err) {
     next(err);

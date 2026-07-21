@@ -90,7 +90,7 @@ exports.getAllComments = async (req, res, next) => {
       const totalComments = await Comment.countDocuments
 
 
-      return successResponse(res , 200 , {comments,pagination:createPaginationData(page , limit ,totalComments , "Comments")})
+      return successResponse(res , 200 , {comments,pagination:createPaginationData(+page , +limit ,totalComments , "Comments")})
   } catch (err) {
     next(err);
   }

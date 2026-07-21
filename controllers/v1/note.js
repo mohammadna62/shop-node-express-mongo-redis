@@ -40,7 +40,7 @@ exports.getNotes = async (req, res, next) => {
     const userTotalNote = await Note.countDocuments({ user: user._id });
     return successResponse(res, 200, {
       products: notedProducts,
-      pagination: createPaginationData(page, limit, userTotalNote, "Notes"),
+      pagination: createPaginationData(+page, +limit, userTotalNote, "Notes"),
     });
   } catch (err) {
     next(err);

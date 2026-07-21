@@ -36,8 +36,8 @@ exports.getAllSellerRequests = async (req, res, next) => {
     return successResponse(res, 200, {
       sellerRequests,
       pagination: createPaginationData(
-        page,
-        limit,
+        +page,
+        +limit,
         sellerRequestTotalCount,
         "SellerRequests",
       ),

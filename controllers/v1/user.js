@@ -140,7 +140,7 @@ exports.getAll = async (req, res, next) => {
     const totalUsers = await User.countDocuments();
     return successResponse(res, 200, {
       users,
-      pagination: createPaginationData(page, limit, totalUsers,"Users"),
+      pagination: createPaginationData(+page, +limit, totalUsers,"Users"),
     });
   } catch (err) {
     next(err);

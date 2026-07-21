@@ -8,6 +8,7 @@ const Product = require("./../../models/Product");
 const { errorResponse, successResponse } = require("../../helpers/responses");
 const { nanoid } = require("nanoid");
 const { isValidObjectId } = require("mongoose");
+const { createPaginationData } = require("./../../utils/index");
 
 const supportedFormat = [
   "image/jpeg",
@@ -134,16 +135,52 @@ exports.getAllProducts = async (req, res, next) => {
         mongoose.Types.ObjectId.createFromHexString(sellerId);
     }
     if (filterValues) {
-      //codes
+      const parsedFilterValues = JSON.parse(filterValues);
+      Object.keys(parsedFilterValues).forEach((key) => {
+        filters[`filterValues.${key}`] = parsedFilterValues[key];
+      });
     }
 
-    await Product.aggregate([
+    const products = await Product.aggregate([
       {
         $match: filters,
       },
-      {},
-      {},
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id", //* Product Model
+          foreignField: "product", //* Comment.product Model
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          averageRating: {
+            $cond: {
+              if: { $gt: [{ $size: "$comments" }, 0] },
+              then: { $avg: `$comments.rating` },
+              else: 0,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          comments: 0, //* Do Not Show Comment
+        },
+      },
+      {
+        $skip: (page - 1) * limit,
+      },
+      {
+        $limit: +limit,
+      },
     ]);
+    const totalProductCount = await Product.countDocuments(filters)
+    return successResponse(res, 200, {
+      products,
+      pagination: createPaginationData(+page,+limit,totalProductCount,"Products"),
+    });
   } catch (err) {
     next(err);
   }
