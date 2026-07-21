@@ -3,6 +3,7 @@ const { auth } = require("./../../middlewares/auth");
 const roleGuard = require("../../middlewares/roleGuard");
 const {
   create,
+  getAllProducts,
   getOneProduct,
   updateProduct,
   deleteProduct,
@@ -15,7 +16,7 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(auth, roleGuard(["ADMIN"]), upload.array("images", 10), create);
+  .post(auth, roleGuard(["ADMIN"]), upload.array("images", 10), create).get(getAllProducts);
 router
   .route("/:id")
   .get(getOneProduct)

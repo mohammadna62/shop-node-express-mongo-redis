@@ -98,6 +98,56 @@ exports.create = async (req, res, next) => {
     next(err);
   }
 };
+exports.getAllProducts = async (req, res, next) => {
+  try {
+    const {
+      name,
+      subCategory,
+      minPrice,
+      maxPrice,
+      sellerId,
+      filterValues,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const filters = {
+      "sellers.stock": { $gt: 0 },
+    };
+
+    if (name) {
+      filters.name = { $regex: name, $option: "i" };
+    }
+    if (subCategory) {
+      filters.subCategory =
+        mongoose.Types.ObjectId.createFromHexString(subCategory);
+    }
+
+    if (minPrice) {
+      filters["sellers.price"] = { $gte: +minPrice };
+    }
+    if (maxPrice) {
+      filters["sellers.price"] = { $lte: +maxPrice };
+    }
+    if (sellerId) {
+      filters["sellers.seller"] =
+        mongoose.Types.ObjectId.createFromHexString(sellerId);
+    }
+    if (filterValues) {
+      //codes
+    }
+
+    await Product.aggregate([
+      {
+        $match: filters,
+      },
+      {},
+      {},
+    ]);
+  } catch (err) {
+    next(err);
+  }
+};
 exports.getOneProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
