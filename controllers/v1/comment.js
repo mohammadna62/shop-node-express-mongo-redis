@@ -1,6 +1,6 @@
 const Product = require("./../../models/Product");
 const Comment = require("./../../models/Comment");
-
+const {createPaginationData}  = require("./../../utils/index")
 const { errorResponse, successResponse } = require("./../../helpers/responses");
 const {
   createCommentValidator,
@@ -70,6 +70,32 @@ exports.createComment = async (req, res, next) => {
   }
 };
 
+exports.getAllComments = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const comments = await Comment.find()
+      .sort({ createdAt: "desc" })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("product")
+      .populate("user", "-addresses")
+      .populate({
+        path: "replies",
+        populate: {
+          path: "user",
+          select: "-addresses",
+        },
+      });
+       
+      const totalComments = await Comment.countDocuments
+
+
+      return successResponse(res , 200 , {comments,pagination:createPaginationData(page , limit ,totalComments , "Comments")})
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.updateComment = async (req, res, next) => {
   try {
     const { commentId } = req.params;
@@ -87,7 +113,7 @@ exports.updateComment = async (req, res, next) => {
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-      return errorResponse(res, 404,"Comment Not Found");
+      return errorResponse(res, 404, "Comment Not Found");
     }
 
     if (comment.user._id.toString() !== user._id.toString()) {
@@ -116,7 +142,7 @@ exports.deleteComment = async (req, res, next) => {
   try {
     const { commentId } = req.params;
     if (!isValidObjectId(commentId)) {
-      return errorResponse(res, 400,"Invalid Comment ID");
+      return errorResponse(res, 400, "Invalid Comment ID");
     }
 
     const comment = await Comment.findById(commentId);
@@ -191,7 +217,7 @@ exports.updateReply = async (req, res, next) => {
       return errorResponse(res, 403, "Access Denied");
     }
 
-   reply.content = content;
+    reply.content = content;
 
     await comment.save();
 
