@@ -12,6 +12,7 @@ const commentsRouter = require("./routes/v1/comment");
 const cartsRouter = require("./routes/v1/cart");
 const ordersRouter = require("./routes/v1/order");
 const checkoutsRouter = require("./routes/v1/checkout");
+const apiDocRouter = require("./routes/v1/apidoc");
 const { redirectProduct } = require("./controllers/v1/shortLink");
 const { setHeaders } = require("./middlewares/setHeaders");
 const { errorHandler } = require("./middlewares/errorHandler");
@@ -39,6 +40,7 @@ app.use("/api/v1/carts", cartsRouter);
 app.use("/api/v1/orders", ordersRouter);
 app.use("/api/v1/checkout", checkoutsRouter);
 app.get("/p/:shortIdentifier", redirectProduct);
+app.use("/apis", apiDocRouter);
 
 app.use((req, res) => {
   console.log("This Path Is Not Found", req.path);
