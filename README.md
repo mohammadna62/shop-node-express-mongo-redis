@@ -41,12 +41,13 @@ The project follows **clean architecture** principles with a modular structure, 
 
 ### 👤 User Management
 
-- ✅ User registration and login
-- ✅ JWT-based authentication
-- ✅ Password hashing with bcrypt
-- ✅ User profile management
+- ✅ User registration with phone number
+- ✅ Login with OTP (One-Time Password)
 - ✅ OTP verification for phone numbers
+- ✅ JWT-based authentication
+- ✅ User profile management
 - ✅ Role-based access control (User/Admin/Seller)
+- ✅ Seller registration during signup with `isSeller` flag
 
 ### 📦 Product Management
 
@@ -358,6 +359,7 @@ ZARINPAL_CALLBACK_URL=http://localhost:3000/api/v1/checkout/verify
 
 # OTP Configuration
 OTP_EXPIRE_TIME=120  # seconds
+OTP_LENGTH=4          # OTP code length
 
 # File Upload Configuration
 MAX_FILE_SIZE=5242880  # 5MB
@@ -452,85 +454,71 @@ http://localhost:3000/api-docs
 
 ### Main Endpoints (v1)
 
-| Method   | Endpoint                              | Description              | Access       |
-| -------- | ------------------------------------- | ------------------------ | ------------ |
-| `POST`   | `/api/v1/auth/register`               | User registration        | Public       |
-| `POST`   | `/api/v1/auth/login`                  | User login               | Public       |
-| `POST`   | `/api/v1/auth/verify-otp`             | Verify OTP               | Public       |
-| `GET`    | `/api/v1/user/profile`                | Get user profile         | Private      |
-| `PUT`    | `/api/v1/user/profile`                | Update user profile      | Private      |
-| `GET`    | `/api/v1/products`                    | Get all products         | Public       |
-| `GET`    | `/api/v1/products/:id`                | Get product by ID        | Public       |
-| `POST`   | `/api/v1/products`                    | Create product           | Admin/Seller |
-| `PUT`    | `/api/v1/products/:id`                | Update product           | Admin/Seller |
-| `DELETE` | `/api/v1/products/:id`                | Delete product           | Admin/Seller |
-| `GET`    | `/api/v1/categories`                  | Get all categories       | Public       |
-| `POST`   | `/api/v1/categories`                  | Create category          | Admin        |
-| `GET`    | `/api/v1/subcategories`               | Get all subcategories    | Public       |
-| `POST`   | `/api/v1/cart`                        | Add to cart              | Private      |
-| `GET`    | `/api/v1/cart`                        | Get cart                 | Private      |
-| `PUT`    | `/api/v1/cart/:productId`             | Update cart item         | Private      |
-| `DELETE` | `/api/v1/cart/:productId`             | Remove from cart         | Private      |
-| `POST`   | `/api/v1/checkout`                    | Checkout                 | Private      |
-| `GET`    | `/api/v1/checkout/verify`             | Verify payment           | Private      |
-| `GET`    | `/api/v1/orders`                      | Get user orders          | Private      |
-| `GET`    | `/api/v1/orders/:id`                  | Get order details        | Private      |
-| `PUT`    | `/api/v1/orders/:id/status`           | Update order status      | Admin/Seller |
-| `POST`   | `/api/v1/comments`                    | Add comment              | Private      |
-| `GET`    | `/api/v1/comments/product/:productId` | Get product comments     | Public       |
-| `POST`   | `/api/v1/seller-request`              | Request to become seller | Private      |
-| `GET`    | `/api/v1/seller-requests`             | Get seller requests      | Admin        |
-| `PUT`    | `/api/v1/seller-requests/:id/approve` | Approve seller request   | Admin        |
-| `GET`    | `/api/v1/location/provinces`          | Get provinces            | Public       |
-| `GET`    | `/api/v1/location/cities/:provinceId` | Get cities by province   | Public       |
-| `POST`   | `/api/v1/user/address`                | Add address              | Private      |
+| Method   | Endpoint                              | Description                        | Access       |
+| -------- | ------------------------------------- | ---------------------------------- | ------------ |
+| `POST`   | `/api/v1/auth/request-otp`            | Request OTP for login/registration | Public       |
+| `POST`   | `/api/v1/auth/verify-otp`             | Verify OTP and login/register      | Public       |
+| `GET`    | `/api/v1/user/profile`                | Get user profile                   | Private      |
+| `PUT`    | `/api/v1/user/profile`                | Update user profile                | Private      |
+| `GET`    | `/api/v1/products`                    | Get all products                   | Public       |
+| `GET`    | `/api/v1/products/:id`                | Get product by ID                  | Public       |
+| `POST`   | `/api/v1/products`                    | Create product                     | Admin/Seller |
+| `PUT`    | `/api/v1/products/:id`                | Update product                     | Admin/Seller |
+| `DELETE` | `/api/v1/products/:id`                | Delete product                     | Admin/Seller |
+| `GET`    | `/api/v1/categories`                  | Get all categories                 | Public       |
+| `POST`   | `/api/v1/categories`                  | Create category                    | Admin        |
+| `GET`    | `/api/v1/subcategories`               | Get all subcategories              | Public       |
+| `POST`   | `/api/v1/cart`                        | Add to cart                        | Private      |
+| `GET`    | `/api/v1/cart`                        | Get cart                           | Private      |
+| `PUT`    | `/api/v1/cart/:productId`             | Update cart item                   | Private      |
+| `DELETE` | `/api/v1/cart/:productId`             | Remove from cart                   | Private      |
+| `POST`   | `/api/v1/checkout`                    | Checkout                           | Private      |
+| `GET`    | `/api/v1/checkout/verify`             | Verify payment                     | Private      |
+| `GET`    | `/api/v1/orders`                      | Get user orders                    | Private      |
+| `GET`    | `/api/v1/orders/:id`                  | Get order details                  | Private      |
+| `PUT`    | `/api/v1/orders/:id/status`           | Update order status                | Admin/Seller |
+| `POST`   | `/api/v1/comments`                    | Add comment                        | Private      |
+| `GET`    | `/api/v1/comments/product/:productId` | Get product comments               | Public       |
+| `POST`   | `/api/v1/seller-request`              | Request to become seller           | Private      |
+| `GET`    | `/api/v1/seller-requests`             | Get seller requests                | Admin        |
+| `PUT`    | `/api/v1/seller-requests/:id/approve` | Approve seller request             | Admin        |
+| `GET`    | `/api/v1/location/provinces`          | Get provinces                      | Public       |
+| `GET`    | `/api/v1/location/cities/:provinceId` | Get cities by province             | Public       |
+| `POST`   | `/api/v1/user/address`                | Add address                        | Private      |
 
 ---
 
 ## 🔐 Authentication
 
-### JWT Authentication Flow
+### OTP Authentication Flow
 
-**1. Register**
+**1. Request OTP**
 
 ```http
-POST /api/v1/auth/register
+POST /api/v1/auth/request-otp
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "phone": "09123456789",
-  "password": "SecurePass123!"
+  "phone": "093......644"
 }
 ```
 
-**2. Verify OTP**
+**2. Verify OTP & Login**
 
 ```http
 POST /api/v1/auth/verify-otp
 Content-Type: application/json
 
 {
-  "phone": "09123456789",
-  "otp": "123456"
+  "phone": "093....644",
+  "otp": "3019",
+  "isSeller": true
 }
 ```
 
-**3. Login**
+> **Note:** `isSeller` is optional. Set to `true` if the user wants to register as a seller.
 
-```http
-POST /api/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "john@example.com",
-  "password": "SecurePass123!"
-}
-```
-
-**4. Response**
+**3. Response**
 
 ```json
 {
@@ -539,12 +527,10 @@ Content-Type: application/json
     "token": "eyJhbGciOiJIUzI1NiIs...",
     "user": {
       "id": "507f1f77bcf86cd799439011",
-      "email": "john@example.com",
-      "firstName": "John",
-      "lastName": "Doe",
+      "phone": "093....7644",
       "role": "user",
-      "phone": "09123456789",
-      "isVerified": true
+      "isVerified": true,
+      "isSeller": false
     }
   }
 }
