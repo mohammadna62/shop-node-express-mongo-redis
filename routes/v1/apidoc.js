@@ -10,6 +10,7 @@ customCss: `.swagger-ui .topbar {display:none;},`,
 }
 
 router.use("/", swaggerUi.serve);
+
 router.use(
   "/",
   swaggerUi.setup(swaggerDoc,swaggerOption),

@@ -937,42 +937,6 @@
         }
       }
     },
-    "/api/v1/users/notes": {
-      "get": {
-        "tags": ["Users 👤"],
-        "summary": "Get all user's notes",
-        "description": "",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "All user's notes will returned"
-          },
-          "401": {
-            "description": " Token is not valid"
-          }
-        }
-      }
-    },
     "/api/v1/location/": {
       "get": {
         "tags": ["Location 🗺"],
@@ -1022,6 +986,40 @@
           },
           "401": {
             "description": "Token is not valid"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Note 📓"],
+        "summary": "Get all user's notes",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All user's notes will returned"
+          },
+          "401": {
+            "description": " Token is not valid"
           }
         }
       }
