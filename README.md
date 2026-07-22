@@ -649,10 +649,9 @@ SOFTWARE.
 
 [![GitHub](https://img.shields.io/badge/GitHub-mohammadna62-181717?style=for-the-badge&logo=github)](https://github.com/mohammadna62)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Mohammad%20Naghavi%20Olyaei-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/mohammad-naghavi-olyaei-b78014100/)
-[![Email](https://img.shields.io/badge/Email-YourEmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:your.email@example.com)
+[![Email](https://img.shields.io/badge/Email-mohammad.naghavi@gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:mohammad.naghavi@gmail.com)
 
 ### Project Link
-
 **GitHub:** [https://github.com/mohammadna62/shop-node-express-mongo-redis](https://github.com/mohammadna62/shop-node-express-mongo-redis)
 
 ---
