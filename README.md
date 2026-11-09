@@ -1,663 +1,238 @@
-# 🛒 Shop - E-Commerce API
+# Shop — E-commerce REST API
 
-> A powerful, scalable, and production-ready RESTful API for e-commerce platforms built with Node.js, Express, MongoDB, and Redis
+A backend API for an e-commerce application built with **Node.js, Express 5, MongoDB, Mongoose, and Redis**. The project includes phone-number OTP authentication, product and category management, shopping-cart and checkout workflows, order management, seller-related functionality, and ZarinPal payment integration.
 
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-blue.svg)](https://nodejs.org)
-[![Express Version](https://img.shields.io/badge/express-5.x-green.svg)](https://expressjs.com)
-[![MongoDB Version](https://img.shields.io/badge/mongodb-7.x-brightgreen.svg)](https://mongodb.com)
-[![Redis Version](https://img.shields.io/badge/redis-5.x-red.svg)](https://redis.io)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+> This repository contains the backend API. It does not include a frontend application.
 
----
+## Features
 
-## 📋 Table of Contents
+### Authentication and users
 
-- [About The Project](#-about-the-project)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Installation](#-installation)
-- [Environment Variables](#-environment-variables)
-- [Docker Setup](#-docker-setup)
-- [API Documentation](#-api-documentation)
-- [Authentication](#-authentication)
-- [Redis Caching](#-redis-caching)
-- [Payment Integration](#-payment-integration)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Contact](#-contact)
+- Phone-number authentication using one-time passwords (OTP)
+- OTP storage and expiration through Redis
+- JWT-based authentication
+- User profile and address management
+- Role-based authorization for `USER`, `SELLER`, and `ADMIN` roles
+- User banning functionality for administrators
 
----
+### Products and catalog
 
-## 📖 About The Project
+- Product creation, retrieval, update, and deletion
+- Product image uploads using Multer
+- Product search/filtering supported by the product API
+- Category and subcategory management
+- Seller and stock information associated with products
+- Province and city data endpoints
 
-**Shop** is a comprehensive e-commerce API backend built with modern Node.js technologies. It provides a complete set of features for online stores including product management, user authentication, shopping cart, order processing, and online payment integration.
+### Cart, checkout, orders, and payments
 
-The project follows **clean architecture** principles with a modular structure, making it easy to extend and maintain. Redis is used for caching to ensure high performance and scalability.
+- Add items to the shopping cart, retrieve the cart, and remove items
+- Redis integration for temporary data, including OTP handling; cart data is persisted through MongoDB models
+- Checkout creation from the current cart
+- ZarinPal payment request and payment verification
+- Order creation after successful payment verification
+- Order retrieval and administrator order-status updates
 
----
+### Additional functionality
 
-## ✨ Features
+- Product comments, replies, and moderation endpoints
+- Seller registration-request workflow
+- Seller management endpoints
+- Product notes
+- Product short links
+- Request validation with Yup
+- Centralized error-handling middleware
+- API documentation with Swagger UI
 
-### 👤 User Management
+## Tech stack
 
-- ✅ User registration with phone number
-- ✅ Login with OTP (One-Time Password)
-- ✅ OTP verification for phone numbers
-- ✅ JWT-based authentication
-- ✅ User profile management
-- ✅ Role-based access control (User/Admin/Seller)
-- ✅ Seller registration during signup with `isSeller` flag
+| Technology | Purpose |
+|---|---|
+| Node.js | JavaScript runtime |
+| Express 5 | HTTP server and routing |
+| MongoDB | Persistent data storage |
+| Mongoose | MongoDB object modeling |
+| Redis / ioredis | Temporary data and OTP storage |
+| JSON Web Token | Authentication |
+| bcrypt | OTP hashing and password-hashing utility |
+| Yup | Request-data validation |
+| Multer | Image uploads |
+| Swagger UI Express | Interactive API documentation |
+| Axios | HTTP requests to the payment provider |
+| ZarinPal | Payment gateway integration |
 
-### 📦 Product Management
+## Project structure
 
-- ✅ CRUD operations for products
-- ✅ Product image upload with Multer
-- ✅ Product search and filtering
-- ✅ Category and subcategory management
-- ✅ Stock inventory management
-- ✅ Product pricing and discounts
-- ✅ Seller-specific product management
-
-### 🛒 Shopping Cart
-
-- ✅ Add/remove products from cart
-- ✅ Update product quantities
-- ✅ Automatic price calculation
-- ✅ Cart persistence with Redis
-
-### 💳 Checkout & Payment
-
-- ✅ Complete checkout process
-- ✅ Zarinpal payment gateway integration
-- ✅ Order creation and management
-- ✅ Payment verification
-- ✅ Order status tracking
-
-### 📊 Order Management
-
-- ✅ Place orders
-- ✅ View order history
-- ✅ Order status tracking (Pending, Paid, Shipped, Delivered, Cancelled)
-- ✅ Seller order management
-
-### 🏷️ Categories & Subcategories
-
-- ✅ Category management
-- ✅ Subcategory management
-- ✅ Category hierarchy
-- ✅ Category icons/images
-
-### 💬 Comments & Reviews
-
-- ✅ Product comments and reviews
-- ✅ Rating system
-- ✅ Comment moderation
-
-### 📝 Notes & Shortlinks
-
-- ✅ Note management for products
-- ✅ Shortlink generation for products
-
-### 📍 Location Services
-
-- ✅ Province and city management
-- ✅ Address management for users
-
-### 👨‍💼 Seller Management
-
-- ✅ Seller registration requests
-- ✅ Seller approval workflow
-- ✅ Seller dashboard
-- ✅ Seller product management
-
-### ⚡ Redis Caching
-
-- ✅ Product caching
-- ✅ Cart caching
-- ✅ Reduced database queries
-
-### 📚 API Documentation
-
-- ✅ Swagger UI integration
-- ✅ Complete endpoint documentation
-- ✅ Available at `/api-docs`
-
----
-
-## 🚀 Tech Stack
-
-| Technology     | Version | Purpose               |
-| -------------- | ------- | --------------------- |
-| **Node.js**    | ≥ 18    | JavaScript runtime    |
-| **Express**    | 5.x     | Web framework         |
-| **MongoDB**    | 7.x     | Primary database      |
-| **Mongoose**   | 9.x     | MongoDB ODM           |
-| **Redis**      | 7.x     | Caching               |
-| **ioredis**    | 5.x     | Redis client          |
-| **JWT**        | 9.x     | Authentication        |
-| **bcrypt**     | 6.x     | Password hashing      |
-| **Multer**     | 2.x     | File upload           |
-| **Yup**        | 1.x     | Data validation       |
-| **Swagger UI** | 5.x     | API documentation     |
-| **Zarinpal**   | 1.x     | Payment gateway       |
-| **dotenv**     | 17.x    | Environment variables |
-| **nanoid**     | 5.x     | Unique ID generation  |
-| **axios**      | 1.x     | HTTP requests         |
-
----
-
-## 📁 Project Structure
-
-```
-shop/
-├── src/
-│   ├── config/                         # Configuration files
-│   │   ├── provinces.json             # Iran provinces data
-│   │   └── cities.json                # Iran cities data
-│   │
-│   ├── controllers/v1/                 # Version 1 controllers
-│   │   ├── auth.js                    # Authentication controller
-│   │   ├── cart.js                    # Shopping cart controller
-│   │   ├── category.js                # Category controller
-│   │   ├── checkout.js                # Checkout controller
-│   │   ├── comments.js                # Comments controller
-│   │   ├── location.js                # Location controller
-│   │   ├── note.js                    # Note controller
-│   │   ├── order.js                   # Order controller
-│   │   ├── product.js                 # Product controller
-│   │   ├── seller.js                  # Seller controller
-│   │   ├── sellerRequest.js           # Seller request controller
-│   │   ├── shortlink.js               # Shortlink controller
-│   │   └── subcategory.js             # Subcategory controller
-│   │
-│   ├── helpers/                        # Helper functions
-│   │   └── responses.js               # Standardized responses
-│   │
-│   ├── middlewares/                    # Middleware functions
-│   │   ├── auth.js                    # Authentication middleware
-│   │   ├── errorHandler.js            # Global error handler
-│   │   ├── roleGuard.js               # Role-based access control
-│   │   └── setHeaders.js              # CORS and headers middleware
-│   │
-│   ├── models/                         # Mongoose models
-│   │   ├── Ban.js                     # Ban model
-│   │   ├── cart.js                    # Cart model
-│   │   ├── category.js                # Category model
-│   │   ├── checkout.js                # Checkout model
-│   │   ├── comment.js                 # Comment model
-│   │   ├── note.js                    # Note model
-│   │   ├── order.js                   # Order model
-│   │   ├── product.js                 # Product model
-│   │   ├── seller.js                  # Seller model
-│   │   ├── sellerRequest.js           # Seller request model
-│   │   ├── subCategory.js             # Subcategory model
-│   │   └── Users.js                   # User model
-│   │
-│   ├── public/                         # Public assets
-│   │   └── images/                    # Uploaded images
-│   │       ├── categor/               # Category images
-│   │       ├── category/              # Category images
-│   │       ├── category-icons/        # Category icons
-│   │       └── products/              # Product images
-│   │
-│   ├── routes/v1/                      # Version 1 routes
-│   │   ├── apiDoc.js                  # API documentation route
-│   │   ├── auth.js                    # Authentication routes
-│   │   ├── cart.js                    # Cart routes
-│   │   ├── category.js                # Category routes
-│   │   ├── checkout.js                # Checkout routes
-│   │   ├── comments.js                # Comments routes
-│   │   ├── location.js                # Location routes
-│   │   ├── note.js                    # Note routes
-│   │   ├── order.js                   # Order routes
-│   │   ├── product.js                 # Product routes
-│   │   ├── seller.js                  # Seller routes
-│   │   ├── sellerRequest.js           # Seller request routes
-│   │   └── user.js                    # User routes
-│   │
-│   ├── services/                       # Business logic services
-│   │   ├── otp.js                     # OTP service
-│   │   └── zarinpal.js                # Zarinpal payment service
-│   │
-│   ├── swagger/                        # Swagger documentation
-│   │   └── swagger.json               # Swagger configuration
-│   │
-│   ├── utils/                          # Utility functions
-│   │   ├── index.js                   # Utils entry point
-│   │   └── multerConfig.js            # Multer configuration
-│   │
-│   ├── validators/                     # Yup validation schemas
-│   │   ├── address.js                 # Address validation
-│   │   ├── auth.js                    # Auth validation
-│   │   ├── cart.js                    # Cart validation
-│   │   ├── category.js                # Category validation
-│   │   ├── checkout.js                # Checkout validation
-│   │   ├── comments.js                # Comments validation
-│   │   ├── note.js                    # Note validation
-│   │   ├── order.js                   # Order validation
-│   │   ├── product.js                 # Product validation
-│   │   ├── seller.js                  # Seller validation
-│   │   └── sellerRequest.js           # Seller request validation
-│   │
-│   ├── .env                            # Environment variables
-│   ├── app.js                          # Express app setup
-│   ├── redis.js                        # Redis connection
-│   └── server.js                       # Application entry point
-│
-├── .gitignore                          # Git ignore file
+```text
+.
+├── cities/                 # Province and city JSON data
+├── controllers/v1/         # Request handlers
+├── helpers/                # Shared response helpers
+├── middlewares/            # Authentication, authorization, headers, errors
+├── models/                 # Mongoose models
+├── public/images/          # Public image assets and upload directories
+├── routes/v1/              # Version 1 API routes
+├── services/               # OTP/SMS and payment integrations
+├── swagger/                # Swagger JSON specification
+├── utils/                  # Shared utilities and Multer configuration
+├── validators/             # Yup validation schemas
+├── app.js                  # Express application configuration
+├── redis.js                # Redis client
+├── server.js               # Database connection and server startup
 ├── package.json
-├── package-lock.json
 └── README.md
 ```
 
----
+## Prerequisites
 
-## ⚙️ Installation
+Install and run the following services before starting the API:
 
-### Prerequisites
+- Node.js compatible with the dependencies in `package.json` (Node.js 20 or newer is recommended)
+- npm
+- MongoDB
+- Redis
 
-- Node.js ≥ 18
-- MongoDB ≥ 6
-- Redis ≥ 7
-- npm or yarn
+You also need credentials/configuration for the SMS provider (IPPanel) and ZarinPal if you want to use OTP delivery and real payment flows.
 
-### Step-by-Step Setup
+## Getting started
 
-**1. Clone the repository**
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/mohammadna62/shop-node-express-mongo-redis.git
 cd shop-node-express-mongo-redis
 ```
 
-**2. Install dependencies**
+### 2. Install dependencies
 
 ```bash
 npm install
-# or
-yarn install
 ```
 
-**3. Configure environment variables**
+### 3. Configure environment variables
 
-```bash
-cp .env.example .env
-```
-
-Edit the `.env` file with your configuration.
-
-**4. Start MongoDB and Redis**
-Make sure MongoDB and Redis are running on your system:
-
-```bash
-# MongoDB
-mongod --dbpath /path/to/data
-
-# Redis
-redis-server
-```
-
-**5. Run the application**
-
-Development mode:
-
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-Production mode:
-
-```bash
-npm start
-# or
-yarn start
-```
-
-**6. Access the API**
-
-```
-http://localhost:3000
-```
-
-**7. View API Documentation**
-
-```
-http://localhost:3000/api-docs
-```
-
----
-
-## 🔐 Environment Variables
-
-Create a `.env` file in the root directory:
+Create a `.env` file in the project root. The application reads the following variables:
 
 ```env
-# Server Configuration
+# Application
 PORT=3000
 NODE_ENV=development
 
-# MongoDB Configuration
-MONGODB_URI=mongodb://localhost:27017/shop
+# MongoDB
+MONGO_URI=mongodb://127.0.0.1:27017/shop
 
-# Redis Configuration
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-REDIS_DB=0
+# Redis
+REDIS_URI=redis://127.0.0.1:6379
 
-# JWT Configuration
-JWT_SECRET=your_super_secret_key_here_min_32_characters
-JWT_EXPIRE=7d
+# JWT
+JWT_SECRET=replace_with_a_long_random_secret
 
-# Zarinpal Payment Configuration
-ZARINPAL_MERCHANT_ID=your_merchant_id_here
-ZARINPAL_SANDBOX=true
-ZARINPAL_CALLBACK_URL=http://localhost:3000/api/v1/checkout/verify
+# IPPanel SMS provider (OTP delivery)
+SMS_UNAME=your_ippanel_username
+SMS_PASSWORD=your_ippanel_password
+SMS_FROM=your_sender_number
+VERIFY_PATTERN_CODE=your_pattern_code
 
-# OTP Configuration
-OTP_EXPIRE_TIME=120  # seconds
-OTP_LENGTH=4          # OTP code length
-
-# File Upload Configuration
-MAX_FILE_SIZE=5242880  # 5MB
-UPLOAD_PATH=./src/public/images
-
-# CORS Configuration
-CORS_ORIGIN=*
-
-# Rate Limiting
-RATE_LIMIT_WINDOW=15
-RATE_LIMIT_MAX=100
+# ZarinPal payment gateway
+ZARINPAL_API_BASE_URL=your_zarinpal_api_base_url
+ZARINPAL_MERCHANT_ID=your_merchant_id
+ZARINPAL_PAYMENT_BASE_URL=your_zarinpal_payment_base_url
+ZARINPAL_PAYMENT_CALLBACK_URL=http://localhost:3000/api/v1/checkout/verify
 ```
 
----
+Use the API base URL and payment base URL that correspond to your ZarinPal environment. Replace all example values with your own credentials and configuration. Do not commit your real `.env` file or secrets to GitHub.
 
-## 🐳 Docker Setup
+### 4. Start MongoDB and Redis
 
-### docker-compose.yml
+Make sure both services are running and that `MONGO_URI` and `REDIS_URI` point to them.
 
-```yaml
-version: "3.8"
+### 5. Run the API
 
-services:
-  mongodb:
-    image: mongo:7
-    container_name: shop-mongodb
-    restart: always
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-      - MONGO_INITDB_DATABASE=shop
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - shop-network
+Development mode (uses nodemon):
 
-  redis:
-    image: redis:7-alpine
-    container_name: shop-redis
-    restart: always
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - shop-network
-
-  app:
-    build: .
-    container_name: shop-api
-    restart: always
-    ports:
-      - "3000:3000"
-    depends_on:
-      - mongodb
-      - redis
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - MONGODB_URI=mongodb://mongodb:27017/shop
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - JWT_SECRET=${JWT_SECRET}
-      - ZARINPAL_MERCHANT_ID=${ZARINPAL_MERCHANT_ID}
-    volumes:
-      - ./src/public/images:/app/src/public/images
-    networks:
-      - shop-network
-
-volumes:
-  mongo_data:
-  redis_data:
-
-networks:
-  shop-network:
-    driver: bridge
+```bash
+npm run dev
 ```
 
----
+Regular start:
 
-## 📚 API Documentation
-
-### Swagger UI
-
-After starting the application, the complete API documentation is available at:
-
-```
-http://localhost:3000/api-docs
+```bash
+npm start
 ```
 
-### Main Endpoints (v1)
+By default, the server listens on port `3000`. Set `PORT` to use a different port.
 
-| Method   | Endpoint                              | Description                        | Access       |
-| -------- | ------------------------------------- | ---------------------------------- | ------------ |
-| `POST`   | `/api/v1/auth/request-otp`            | Request OTP for login/registration | Public       |
-| `POST`   | `/api/v1/auth/verify-otp`             | Verify OTP and login/register      | Public       |
-| `GET`    | `/api/v1/user/profile`                | Get user profile                   | Private      |
-| `PUT`    | `/api/v1/user/profile`                | Update user profile                | Private      |
-| `GET`    | `/api/v1/products`                    | Get all products                   | Public       |
-| `GET`    | `/api/v1/products/:id`                | Get product by ID                  | Public       |
-| `POST`   | `/api/v1/products`                    | Create product                     | Admin/Seller |
-| `PUT`    | `/api/v1/products/:id`                | Update product                     | Admin/Seller |
-| `DELETE` | `/api/v1/products/:id`                | Delete product                     | Admin/Seller |
-| `GET`    | `/api/v1/categories`                  | Get all categories                 | Public       |
-| `POST`   | `/api/v1/categories`                  | Create category                    | Admin        |
-| `GET`    | `/api/v1/subcategories`               | Get all subcategories              | Public       |
-| `POST`   | `/api/v1/cart`                        | Add to cart                        | Private      |
-| `GET`    | `/api/v1/cart`                        | Get cart                           | Private      |
-| `PUT`    | `/api/v1/cart/:productId`             | Update cart item                   | Private      |
-| `DELETE` | `/api/v1/cart/:productId`             | Remove from cart                   | Private      |
-| `POST`   | `/api/v1/checkout`                    | Checkout                           | Private      |
-| `GET`    | `/api/v1/checkout/verify`             | Verify payment                     | Private      |
-| `GET`    | `/api/v1/orders`                      | Get user orders                    | Private      |
-| `GET`    | `/api/v1/orders/:id`                  | Get order details                  | Private      |
-| `PUT`    | `/api/v1/orders/:id/status`           | Update order status                | Admin/Seller |
-| `POST`   | `/api/v1/comments`                    | Add comment                        | Private      |
-| `GET`    | `/api/v1/comments/product/:productId` | Get product comments               | Public       |
-| `POST`   | `/api/v1/seller-request`              | Request to become seller           | Private      |
-| `GET`    | `/api/v1/seller-requests`             | Get seller requests                | Admin        |
-| `PUT`    | `/api/v1/seller-requests/:id/approve` | Approve seller request             | Admin        |
-| `GET`    | `/api/v1/location/provinces`          | Get provinces                      | Public       |
-| `GET`    | `/api/v1/location/cities/:provinceId` | Get cities by province             | Public       |
-| `POST`   | `/api/v1/user/address`                | Add address                        | Private      |
+## API documentation
 
----
+After starting the server, open Swagger UI at:
 
-## 🔐 Authentication
+```text
+http://localhost:3000/apis
+```
 
-### OTP Authentication Flow
+The Swagger specification is stored in `swagger/swagger.json`. The route groups below reflect the paths mounted by the Express application in `app.js`.
 
-**1. Request OTP**
+All version 1 API routes use the `/api/v1` prefix. The main route groups are:
+
+| Route group | Base path | Purpose |
+|---|---|---|
+| Authentication | `/api/v1/auth` | OTP login/registration and current-user endpoint |
+| Users | `/api/v1/users` | User administration and address management |
+| Products | `/api/v1/products` | Product operations |
+| Categories | `/api/v1/categories` | Categories and subcategories |
+| Sellers | `/api/v1/sellers` | Seller profile operations |
+| Seller requests | `/api/v1/seller-requests` | Seller request workflow |
+| Cart | `/api/v1/carts` | Shopping-cart operations |
+| Checkout | `/api/v1/checkout` | Checkout and payment verification |
+| Orders | `/api/v1/orders` | Order retrieval and administration |
+| Comments | `/api/v1/comments` | Product comments and replies |
+| Notes | `/api/v1/notes` | Notes |
+| Locations | `/api/v1/locations` | City data |
+
+## Authentication overview
+
+The authentication flow uses two endpoints:
+
+1. `POST /api/v1/auth/send` — request an OTP for a phone number.
+2. `POST /api/v1/auth/verify` — submit the phone number and OTP to verify the user and receive a JWT.
+
+Send the returned token in the `Authorization` header for protected endpoints:
 
 ```http
-POST /api/v1/auth/request-otp
-Content-Type: application/json
-
-{
-  "phone": "093......644"
-}
-```
-
-**2. Verify OTP & Login**
-
-```http
-POST /api/v1/auth/verify-otp
-Content-Type: application/json
-
-{
-  "phone": "093....644",
-  "otp": "3019",
-  "isSeller": true
-}
-```
-
-> **Note:** `isSeller` is optional. Set to `true` if the user wants to register as a seller.
-
-**3. Response**
-
-```json
-{
-  "success": true,
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIs...",
-    "user": {
-      "id": "507f1f77bcf86cd799439011",
-      "phone": "093....7644",
-      "role": "user",
-      "isVerified": true,
-      "isSeller": false
-    }
-  }
-}
-```
-
-### Role-Based Access Control
-
-| Role       | Permissions                                                                                 |
-| ---------- | ------------------------------------------------------------------------------------------- |
-| **User**   | View products, manage cart, place orders, view own orders, add comments                     |
-| **Seller** | All user permissions + create/update/delete own products, view own orders, manage inventory |
-| **Admin**  | All permissions + manage categories, manage sellers, manage all orders, ban users           |
-
----
-
-## ⚡ Redis Caching
-
-Redis is used for:
-
-1. **Product Cache**: Frequently accessed products
-2. **Cart Cache**: User shopping carts
-3. **Session Management**: User sessions (optional)
-
----
-
-## 💳 Payment Integration
-
-### Zarinpal Payment Flow
-
-**1. Create Checkout**
-
-```http
-POST /api/v1/checkout
 Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "addressId": "507f1f77bcf86cd799439011",
-  "items": [...]
-}
 ```
 
-**2. Payment Response**
+The first registered user is assigned the `ADMIN` role by the current registration logic. Subsequent users are registered with the `USER` role, or with `USER` and `SELLER` roles when the optional `isSeller` field is set during OTP verification.
 
-```json
-{
-  "success": true,
-  "data": {
-    "paymentUrl": "https://sandbox.zarinpal.com/pg/StartPay/00000000-0000-0000-0000-000000000000",
-    "orderId": "507f1f77bcf86cd799439011",
-    "amount": 250000
-  }
-}
-```
+## Checkout and payment overview
 
-**3. Verify Payment**
+The authenticated user creates a checkout through `POST /api/v1/checkout`. The API builds the checkout from the user's cart and requests a payment through ZarinPal. After the customer completes the payment, ZarinPal redirects to the configured callback URL, which is handled by `GET /api/v1/checkout/verify`.
 
-```
-GET /api/v1/checkout/verify?Authority=00000000-0000-0000-0000-000000000000&Status=OK
-```
+The verification endpoint checks the payment with ZarinPal. When verification succeeds, the application creates an order, updates product stock, clears the cart, and removes the checkout record.
 
----
+## Current project status
 
-## 🤝 Contributing
+- The API is runnable when its external dependencies and environment variables are configured.
+- Swagger documentation is included in the repository.
+- The implemented application features are described above; consult the source code and Swagger specification for exact behavior.
+- Automated tests are **not currently included** in this repository.
+- Docker and Docker Compose configuration files are **not currently included**.
 
-We welcome contributions! Please follow these steps:
+## Contributing
 
-1. **Fork** the repository
-2. **Create a branch**: `git checkout -b feature/AmazingFeature`
-3. **Make changes** and commit: `git commit -m 'Add some AmazingFeature'`
-4. **Push** to branch: `git push origin feature/AmazingFeature`
-5. **Open a Pull Request**
+Contributions and technical feedback are welcome. If you find an issue or have a suggestion, feel free to open an issue or submit a pull request.
 
-### Guidelines
+## License
 
-- Follow existing code style
-- Add tests for new features
-- Update documentation
-- Write clear commit messages
+The `package.json` declares the project license as MIT.
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2025 Mohammad Naghavi Olayei
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
----
-
-## 👨‍💻 Contact
+## Author
 
 **Mohammad Naghavi Olayei**
 
-[![GitHub](https://img.shields.io/badge/GitHub-mohammadna62-181717?style=for-the-badge&logo=github)](https://github.com/mohammadna62)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Mohammad%20Naghavi%20Olyaei-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/mohammad-naghavi-olyaei-b78014100/)
-[![Email](https://img.shields.io/badge/Email-mohammad.naghavi@gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:mohammad.naghavi@gmail.com)
+- GitHub: [mohammadna62](https://github.com/mohammadna62)
+- LinkedIn: [Mohammad Naghavi Olyaei](https://www.linkedin.com/in/mohammad-naghavi-olyaei-b78014100/)
 
-### Project Link
-**GitHub:** [https://github.com/mohammadna62/shop-node-express-mongo-redis](https://github.com/mohammadna62/shop-node-express-mongo-redis)
+## Repository
 
----
-
-**Built with ❤️ and Node.js**
-
----
-
-**Happy Coding! 🚀**
+[https://github.com/mohammadna62/shop-node-express-mongo-redis](https://github.com/mohammadna62/shop-node-express-mongo-redis)
